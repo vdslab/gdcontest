@@ -1,0 +1,140 @@
+{
+  "db": "PostgreSQL",
+  "8a15ad7d88cbcdbd41a6ca0d32259f9fbedeae09c88acd2a425efef1f1788ea9": {
+    "describe": {
+      "columns": [
+        {
+          "name": "contest_name",
+          "ordinal": 0,
+          "type_info": "Text"
+        },
+        {
+          "name": "name",
+          "ordinal": 1,
+          "type_info": "Text"
+        },
+        {
+          "name": "content!:sqlx::types::Json<GraphContent>",
+          "ordinal": 2,
+          "type_info": "Json"
+        },
+        {
+          "name": "distance!:sqlx::types::Json<Vec<Vec<f64>>>",
+          "ordinal": 3,
+          "type_info": "Json"
+        }
+      ],
+      "nullable": [
+        false,
+        false,
+        false,
+        false
+      ],
+      "parameters": {
+        "Left": [
+          "Text",
+          "Text",
+          "Json",
+          "Json"
+        ]
+      }
+    },
+    "query": "INSERT INTO graphs (contest_name, name, content, distance) VALUES ($1, $2, $3, $3)\n        ON CONFLICT (contest_name, name)\n        DO UPDATE SET content=$3, distance=$4\n        RETURNING\n          contest_name,\n          name,\n          content AS \"content!:sqlx::types::Json<GraphContent>\",\n          distance AS \"distance!:sqlx::types::Json<Vec<Vec<f64>>>\""
+  },
+  "91f60eb127601ae0dd9bd76e92036b2def5502806a0d983560820ffe2559fb17": {
+    "describe": {
+      "columns": [
+        {
+          "name": "name",
+          "ordinal": 0,
+          "type_info": "Text"
+        }
+      ],
+      "nullable": [
+        false
+      ],
+      "parameters": {
+        "Left": [
+          "Text"
+        ]
+      }
+    },
+    "query": "SELECT * FROM contests WHERE name = $1"
+  },
+  "a0cafc86f213d60b3bd0391b378fc74600b46752b0b2e85f311cdd07a28fac41": {
+    "describe": {
+      "columns": [
+        {
+          "name": "name",
+          "ordinal": 0,
+          "type_info": "Text"
+        }
+      ],
+      "nullable": [
+        false
+      ],
+      "parameters": {
+        "Left": []
+      }
+    },
+    "query": "SELECT * FROM contests"
+  },
+  "ab7e7b9b2f7d4dcdbe83ab11206bf8dccb1b89893ef2fd8e250f205798152ada": {
+    "describe": {
+      "columns": [
+        {
+          "name": "contest_name",
+          "ordinal": 0,
+          "type_info": "Text"
+        },
+        {
+          "name": "name",
+          "ordinal": 1,
+          "type_info": "Text"
+        },
+        {
+          "name": "content!:sqlx::types::Json<GraphContent>",
+          "ordinal": 2,
+          "type_info": "Json"
+        },
+        {
+          "name": "distance!:sqlx::types::Json<Vec<Vec<f64>>>",
+          "ordinal": 3,
+          "type_info": "Json"
+        }
+      ],
+      "nullable": [
+        false,
+        false,
+        false,
+        false
+      ],
+      "parameters": {
+        "Left": [
+          "Text"
+        ]
+      }
+    },
+    "query": "SELECT \n          contest_name,\n          name,\n          content AS \"content!:sqlx::types::Json<GraphContent>\",\n          distance AS \"distance!:sqlx::types::Json<Vec<Vec<f64>>>\"\n         FROM graphs WHERE contest_name = $1"
+  },
+  "ef96af90cba2291ed45fa16b0350a7a4795abb2f706147e6b3f353e23267e46c": {
+    "describe": {
+      "columns": [
+        {
+          "name": "user_id",
+          "ordinal": 0,
+          "type_info": "Text"
+        }
+      ],
+      "nullable": [
+        false
+      ],
+      "parameters": {
+        "Left": [
+          "Text"
+        ]
+      }
+    },
+    "query": "SELECT * FROM admin_users WHERE user_id = $1"
+  }
+}
