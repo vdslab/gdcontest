@@ -19,8 +19,8 @@ import { useUser } from "@auth0/nextjs-auth0/client";
 import { useRouter } from "next/router";
 import NextLink from "next/link";
 
-export async function getServerSideProps(req) {
-  const { contestName, graphName } = req.query;
+export async function getStaticProps({ params }) {
+  const { contestName, graphName } = params;
   const contest = await fetchContest(contestName);
   const graph = await fetchGraph(contestName, graphName);
   const graphContent = await fetchGraphContent(contestName, graphName);
@@ -32,6 +32,14 @@ export async function getServerSideProps(req) {
       graphContent,
       submissions,
     },
+    revalidate: 10,
+  };
+}
+
+export async function getStaticPaths() {
+  return {
+    paths: [],
+    fallback: "blocking",
   };
 }
 

@@ -3,8 +3,8 @@ import { Collapse, Input, Spacer, Table } from "@nextui-org/react";
 import { Section } from "@/components/Section";
 import { fetchContest, fetchGraphs } from "@/api";
 
-export async function getServerSideProps(req) {
-  const { contestName } = req.query;
+export async function getStaticProps({ params }) {
+  const { contestName } = params;
   const contest = await fetchContest(contestName);
   const graphs = await fetchGraphs(contestName);
   return {
@@ -12,6 +12,14 @@ export async function getServerSideProps(req) {
       contest,
       graphs,
     },
+    revalidate: 10,
+  };
+}
+
+export async function getStaticPaths() {
+  return {
+    paths: [],
+    fallback: "blocking",
   };
 }
 

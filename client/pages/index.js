@@ -3,12 +3,13 @@ import { Section } from "@/components/Section";
 import { Link, Table } from "@nextui-org/react";
 import NextLink from "next/link";
 
-export async function getServerSideProps({}) {
+export async function getStaticProps({}) {
   const contests = await fetchContests();
   return {
     props: {
       contests,
     },
+    revalidate: 10,
   };
 }
 
