@@ -1,14 +1,4 @@
 import {
-  Button,
-  Collapse,
-  Input,
-  Link,
-  Spacer,
-  Table,
-  Textarea,
-} from "@nextui-org/react";
-import { Section } from "@/components/Section";
-import {
   fetchContest,
   fetchGraph,
   fetchGraphContent,
@@ -16,8 +6,7 @@ import {
 } from "@/api";
 import { useRef } from "react";
 import { useUser } from "@auth0/nextjs-auth0/client";
-import { useRouter } from "next/router";
-import NextLink from "next/link";
+import Link from "next/link";
 
 export async function getStaticProps({ params }) {
   const { contestName, graphName } = params;
@@ -44,7 +33,6 @@ export async function getStaticPaths() {
 }
 
 export default function GraphDetailPage({ graph, graphContent, submissions }) {
-  const router = useRouter();
   const { user } = useUser();
   const fileRef = useRef();
   const textareaRef = useRef();
@@ -53,121 +41,140 @@ export default function GraphDetailPage({ graph, graphContent, submissions }) {
   });
   return (
     <>
-      <Section>
-        <NextLink
-          href="/contests/[contestName]"
-          as={`/contests/${graph.contest_name}`}
-        >
-          back
-        </NextLink>
-        <Collapse.Group>
-          <Collapse title="Graph Detail" expanded>
-            <Input
-              label="Contest Name"
-              fullWidth
-              value={graph.contest_name}
-              readOnly
-            />
-            <Spacer />
-            <Input
-              label="Graph Name"
-              fullWidth
-              value={graph.graph_name}
-              readOnly
-            />
-            <Spacer />
-            <Input
-              label="Number of Nodes"
-              fullWidth
+      <div className="block">
+        <nav className="breadcrumb" aria-label="breadcrumbs">
+          <ul>
+            <li>
+              <Link href={`/contests/${graph.contest_name}`}>
+                {graph.contest_name}
+              </Link>
+            </li>
+            <li className="is-active">
+              <a>{graph.graph_name}</a>
+            </li>
+          </ul>
+        </nav>
+      </div>
+      <div className="block">
+        <h3 className="title">Graph Detail</h3>
+        <div className="field">
+          <label className="label">Number of Nodes</label>
+          <div className="control">
+            <input
+              className="input"
               value={graphContent.nodes.length}
               readOnly
             />
-            <Spacer />
-            <Input
-              label="Number of Links"
-              fullWidth
+          </div>
+        </div>
+        <div className="field">
+          <label className="label">Number of Links</label>
+          <div className="control">
+            <input
+              className="input"
               value={graphContent.links.length}
               readOnly
             />
-            <Spacer />
-            <Link
-              href={URL.createObjectURL(graphContentBlob)}
+          </div>
+        </div>
+        <div className="field">
+          <div className="control">
+            <a
               download={`${graph.contest_name}-${graph.graph_name}.json`}
-              isExternal
-            >
-              Download
-            </Link>
-          </Collapse>
-          <Collapse title="Submit">
-            <form
-              onSubmit={async (event) => {
-                event.preventDefault();
-                const request = await fetch(
-                  `/api/submissions/${graph.contest_name}/${graph.graph_name}`,
-                  {
-                    method: "POST",
-                    body: JSON.stringify(textareaRef.current.value),
-                    headers: {
-                      "Content-Type": "application/json",
-                    },
-                  },
-                );
-                await request.json();
-                router.replace(router.asPath);
+              className="button"
+              onClick={(event) => {
+                event.target.href = URL.createObjectURL(graphContentBlob);
               }}
             >
-              <input
-                ref={fileRef}
-                type="file"
-                style={{ display: "none" }}
-                onChange={async (event) => {
-                  textareaRef.current.value =
-                    await event.target.files[0].text();
-                }}
-              />
-              <Textarea
+              Download
+            </a>
+          </div>
+        </div>
+      </div>
+      <div className="block">
+        <h3 className="title">Submission</h3>
+        <form
+          onSubmit={async (event) => {
+            event.preventDefault();
+            const request = await fetch(
+              `/api/submissions/${graph.contest_name}/${graph.graph_name}`,
+              {
+                method: "POST",
+                body: JSON.stringify(textareaRef.current.value),
+                headers: {
+                  "Content-Type": "application/json",
+                },
+              },
+            );
+            await request.json();
+          }}
+        >
+          <input
+            ref={fileRef}
+            className="is-invisible"
+            type="file"
+            onChange={async (event) => {
+              textareaRef.current.value = await event.target.files[0].text();
+            }}
+          />
+          <div className="field">
+            <label className="label">Your Submission</label>
+            <div className="control">
+              <textarea
                 ref={textareaRef}
-                label="Your Submission"
-                fullWidth
+                className="textarea"
                 disabled={!user}
-                helperText={user ? null : "Login to Submit"}
-                required
               />
-              <Spacer />
-              <Button.Group bordered disabled={!user}>
-                <Button
-                  onClick={() => {
+            </div>
+          </div>
+          <div className="field">
+            <div className="control">
+              <div className="buttons">
+                <button
+                  className="button"
+                  onClick={(event) => {
+                    event.preventDefault();
                     fileRef.current.click();
                   }}
+                  disabled={!user}
                 >
-                  Upload from File
-                </Button>
-                <Button type="submit">Submit</Button>
-              </Button.Group>
-            </form>
-          </Collapse>
-          <Collapse title="Standings">
-            <Table aria-label="Standings">
-              <Table.Header>
-                <Table.Column>Position</Table.Column>
-                <Table.Column>User</Table.Column>
-                <Table.Column>Score</Table.Column>
-              </Table.Header>
-              <Table.Body>
-                {submissions.map((submission, i) => {
-                  return (
-                    <Table.Row key={i}>
-                      <Table.Cell>{i + 1}</Table.Cell>
-                      <Table.Cell>{submission.user_id}</Table.Cell>
-                      <Table.Cell>{submission.score}</Table.Cell>
-                    </Table.Row>
-                  );
-                })}
-              </Table.Body>
-            </Table>
-          </Collapse>
-        </Collapse.Group>
-      </Section>
+                  Choose from File
+                </button>
+                <button
+                  className="button is-primary"
+                  type="submit"
+                  disabled={!user}
+                >
+                  Submit
+                </button>
+              </div>
+            </div>
+          </div>
+        </form>
+      </div>
+      <div className="block">
+        <h3 className="title">Standings</h3>
+        <table className="table is-bordered is-fullwidth">
+          <thead>
+            <tr>
+              <th>Position</th>
+              <th>User</th>
+              <th>Score</th>
+            </tr>
+          </thead>
+          <tbody>
+            {submissions.map((submission, i) => {
+              return (
+                <tr key={i}>
+                  <td>{i + 1}</td>
+                  <td>{submission.user_id}</td>
+                  <td>{submission.score}</td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+      </div>
     </>
   );
 }

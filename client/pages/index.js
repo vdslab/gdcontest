@@ -1,7 +1,5 @@
 import { fetchContests } from "@/api";
-import { Section } from "@/components/Section";
-import { Link, Table } from "@nextui-org/react";
-import NextLink from "next/link";
+import Link from "next/link";
 
 export async function getStaticProps({}) {
   const contests = await fetchContests();
@@ -16,30 +14,33 @@ export async function getStaticProps({}) {
 export default function HomePage({ contests }) {
   return (
     <>
-      <Section>
-        <Table>
-          <Table.Header>
-            <Table.Column>Contest Name</Table.Column>
-            <Table.Column>Start</Table.Column>
-            <Table.Column>End</Table.Column>
-          </Table.Header>
-          <Table.Body>
+      <div className="block">
+        <h3 className="title">Contests</h3>
+        <table className="table is-bordered is-fullwidth">
+          <thead>
+            <tr>
+              <th>Contest Name</th>
+              <th>Start</th>
+              <th>End</th>
+            </tr>
+          </thead>
+          <tbody>
             {contests.map((contest) => {
               return (
-                <Table.Row key={contest.contest_name}>
-                  <Table.Cell>
-                    <NextLink href={`/contests/${contest.contest_name}`}>
+                <tr key={contest.contest_name}>
+                  <td>
+                    <Link href={`/contests/${contest.contest_name}`}>
                       {contest.contest_name}
-                    </NextLink>
-                  </Table.Cell>
-                  <Table.Cell>{contest.start_at}</Table.Cell>
-                  <Table.Cell>{contest.end_at}</Table.Cell>
-                </Table.Row>
+                    </Link>
+                  </td>
+                  <td>{contest.start_at}</td>
+                  <td>{contest.end_at}</td>
+                </tr>
               );
             })}
-          </Table.Body>
-        </Table>
-      </Section>
+          </tbody>
+        </table>
+      </div>
     </>
   );
 }

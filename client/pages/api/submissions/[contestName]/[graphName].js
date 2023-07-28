@@ -23,7 +23,6 @@ export default withApiAuthRequired(async function (req, res) {
       },
     );
     const data = await response.text();
-    console.log(data);
     res.status(response.status || 200).json(data);
   } catch (error) {
     console.error(error);

@@ -1,7 +1,6 @@
-import NextLink from "next/link";
-import { Collapse, Input, Spacer, Table } from "@nextui-org/react";
-import { Section } from "@/components/Section";
 import { fetchContest, fetchGraphs } from "@/api";
+import { useRouter } from "next/router";
+import Link from "next/link";
 
 export async function getStaticProps({ params }) {
   const { contestName } = params;
@@ -24,61 +23,74 @@ export async function getStaticPaths() {
 }
 
 export default function ContestDetailPage({ contest, graphs }) {
+  const router = useRouter();
   return (
     <>
-      <Section>
-        <Collapse.Group>
-          <Collapse title="Contest Detail">
-            <Input
-              label="Contest Name"
-              fullWidth
-              value={contest.contest_name}
-              readOnly
-            />
-            <Spacer />
-            <Input
-              label="Start"
+      <div className="block">
+        <nav className="breadcrumb" aria-label="breadcrumbs">
+          <ul>
+            <li className="is-active">
+              <a>{contest.contest_name}</a>
+            </li>
+          </ul>
+        </nav>
+      </div>
+      <div className="block">
+        <h3 className="title">Contest Detail</h3>
+        <div className="field">
+          <label className="label">Contest Name</label>
+          <div className="control">
+            <input className="input" value={contest.contest_name} readOnly />
+          </div>
+        </div>
+        <div className="field">
+          <label className="label">Start</label>
+          <div className="control">
+            <input
+              className="input"
               type="datetime-local"
-              fullWidth
               value={contest.start_at}
               readOnly
             />
-            <Spacer />
-            <Input
-              label="End"
+          </div>
+        </div>
+        <div className="field">
+          <label className="label">End</label>
+          <div className="control">
+            <input
+              className="input"
               type="datetime-local"
-              fullWidth
               value={contest.end_at}
               readOnly
             />
-          </Collapse>
-          <Collapse title="Graphs" expanded>
-            <Table aria-label="graphs">
-              <Table.Header>
-                <Table.Column>Graph Name</Table.Column>
-                <Table.Column>Action</Table.Column>
-              </Table.Header>
-              <Table.Body>
-                {graphs.map((graph) => {
-                  return (
-                    <Table.Row key={graph.graph_name}>
-                      <Table.Cell>{graph.graph_name}</Table.Cell>
-                      <Table.Cell>
-                        <NextLink
-                          href="/contests/[contestName]/[graphName]"
-                          as={`/contests/${graph.contest_name}/${graph.graph_name}`}
-                        >
-                          Show
-                        </NextLink>
-                      </Table.Cell>
-                    </Table.Row>
-                  );
-                })}
-              </Table.Body>
-            </Table>
-          </Collapse>
-        </Collapse.Group>
-      </Section>
+          </div>
+        </div>
+      </div>
+      <div className="block">
+        <h3 className="title">Graphs</h3>
+        <table className="table is-bordered is-fullwidth">
+          <thead>
+            <tr>
+              <th>Graph Name</th>
+            </tr>
+          </thead>
+          <tbody>
+            {graphs.map((graph) => {
+              return (
+                <tr key={graph.graph_name}>
+                  <td>
+                    <Link
+                      href={`/contests/${graph.contest_name}/${graph.graph_name}`}
+                    >
+                      {graph.graph_name}
+                    </Link>
+                  </td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+      </div>
     </>
   );
 }
