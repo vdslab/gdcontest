@@ -1,6 +1,6 @@
 use crate::{
     error::{ApiError, Result},
-    models::{DistanceData, Graph, GraphContent, GraphData, GraphDistance, GraphMeta, UpsertGraph},
+    models::*,
 };
 use serde_json::json;
 use sqlx::PgPool;
@@ -25,23 +25,6 @@ impl GraphRepository {
             })
     }
 
-    pub async fn find_meta(&self, contest_name: &str, graph_name: &str) -> Result<GraphMeta> {
-        let mut conn = super::connection(&self.pool).await?;
-        sqlx::query_file_as!(
-            GraphMeta,
-            "sql/graphs/find_meta.sql",
-            contest_name,
-            graph_name
-        )
-        .fetch_one(&mut conn)
-        .await
-        .map(|record| record)
-        .map_err(|e| match e {
-            sqlx::Error::RowNotFound => ApiError::NotFound("record not found".into()),
-            _ => ApiError::Unknown("error".into()),
-        })
-    }
-
     pub async fn find_content(&self, contest_name: &str, graph_name: &str) -> Result<GraphData> {
         let mut conn = super::connection(&self.pool).await?;
         sqlx::query_file_as!(
@@ -59,47 +42,107 @@ impl GraphRepository {
         })
     }
 
-    pub async fn find_distance(
-        &self,
-        contest_name: &str,
-        graph_name: &str,
-    ) -> Result<Vec<Vec<f64>>> {
+    pub async fn find_all(&self, contest_name: &str) -> Result<Vec<Graph>> {
+        let mut conn = super::connection(&self.pool).await?;
+        sqlx::query_file_as!(Graph, "sql/graphs/find_all.sql", contest_name)
+            .fetch_all(&mut conn)
+            .await
+            .map_err(|_| ApiError::Unknown("error".into()))
+    }
+}
+
+pub struct AdminGraphRepository {
+    pool: PgPool,
+}
+
+impl AdminGraphRepository {
+    pub fn new(pool: PgPool) -> Self {
+        Self { pool }
+    }
+
+    pub async fn find(&self, contest_name: &str, graph_name: &str) -> Result<AdminGraph> {
         let mut conn = super::connection(&self.pool).await?;
         sqlx::query_file_as!(
-            GraphDistance,
-            "sql/graphs/find_distance.sql",
+            AdminGraph,
+            "sql/graphs/admin_find.sql",
             contest_name,
             graph_name
         )
         .fetch_one(&mut conn)
         .await
-        .map(|record| record.distance.0)
         .map_err(|e| match e {
             sqlx::Error::RowNotFound => ApiError::NotFound("record not found".into()),
             _ => ApiError::Unknown("error".into()),
         })
     }
 
-    pub async fn find_all(&self, contest_name: &str) -> Result<Vec<GraphMeta>> {
+    pub async fn find_content(&self, contest_name: &str, graph_name: &str) -> Result<GraphData> {
         let mut conn = super::connection(&self.pool).await?;
-        sqlx::query_file_as!(GraphMeta, "sql/graphs/find_all.sql", contest_name)
+        sqlx::query_file_as!(
+            GraphContent,
+            "sql/graphs/admin_find_content.sql",
+            contest_name,
+            graph_name
+        )
+        .fetch_one(&mut conn)
+        .await
+        .map(|record| record.content.0)
+        .map_err(|e| match e {
+            sqlx::Error::RowNotFound => ApiError::NotFound("record not found".into()),
+            _ => ApiError::Unknown("error".into()),
+        })
+    }
+
+    pub async fn find_distance(
+        &self,
+        contest_name: &str,
+        graph_name: &str,
+    ) -> Result<DistanceData> {
+        let mut conn = super::connection(&self.pool).await?;
+        sqlx::query_file_as!(
+            GraphDistance,
+            "sql/graphs/admin_find_distance.sql",
+            contest_name,
+            graph_name
+        )
+        .fetch_one(&mut conn)
+        .await
+        .map(|record| record.distance)
+        .map_err(|e| match e {
+            sqlx::Error::RowNotFound => ApiError::NotFound("record not found".into()),
+            _ => ApiError::Unknown("error".into()),
+        })
+    }
+
+    pub async fn find_all(&self, contest_name: &str) -> Result<Vec<AdminGraph>> {
+        let mut conn = super::connection(&self.pool).await?;
+        sqlx::query_file_as!(AdminGraph, "sql/graphs/admin_find_all.sql", contest_name)
             .fetch_all(&mut conn)
             .await
             .map_err(|_| ApiError::Unknown("error".into()))
     }
 
-    pub async fn save(&self, graph: &UpsertGraph) -> Result<UpsertGraph> {
+    pub async fn save(&self, graph: &AdminUpsertGraph) -> Result<AdminGraph> {
         let mut conn = super::connection(&self.pool).await?;
         sqlx::query_file_as!(
-            UpsertGraph,
-            "sql/graphs/save.sql",
+            AdminGraph,
+            "sql/graphs/admin_save.sql",
             graph.contest_name,
             graph.graph_name,
             json!(graph.content),
-            json!(graph.distance)
+            graph.distance,
         )
         .fetch_one(&mut conn)
         .await
-        .map_err(|_| ApiError::Unknown("error".into()))
+        .map_err(|e| ApiError::Unknown(e.to_string()))
+    }
+
+    pub async fn delete(&self, contest_name: &str, graph_name: &str) -> Result<()> {
+        let mut conn = super::connection(&self.pool).await?;
+        sqlx::query_file!("sql/graphs/admin_delete.sql", contest_name, graph_name,)
+            .execute(&mut conn)
+            .await
+            .map(|_| ())
+            .map_err(|_| ApiError::Unknown("error".into()))
     }
 }

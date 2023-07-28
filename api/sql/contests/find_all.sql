@@ -1,4 +1,6 @@
 SELECT
   contest_name,
-  is_public
+  start_at,
+  end_at
 FROM contests
+WHERE published = TRUE

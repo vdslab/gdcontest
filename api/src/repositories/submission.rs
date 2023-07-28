@@ -1,6 +1,6 @@
 use crate::{
     error::{ApiError, Result},
-    models::{CreateSubmission, Submission},
+    models::*,
 };
 use serde_json::json;
 use sqlx::PgPool;
@@ -38,6 +38,23 @@ impl SubmissionRepository {
         .map_err(|_| ApiError::Unknown("error".into()))
     }
 
+    pub async fn find_standings(
+        &self,
+        contest_name: &str,
+        graph_name: &str,
+    ) -> Result<Vec<StandingsSubmission>> {
+        let mut conn = super::connection(&self.pool).await?;
+        sqlx::query_file_as!(
+            StandingsSubmission,
+            "sql/submissions/find_standings.sql",
+            contest_name,
+            graph_name,
+        )
+        .fetch_all(&mut conn)
+        .await
+        .map_err(|_| ApiError::Unknown("error".into()))
+    }
+
     pub async fn find_all_by_user(
         &self,
         contest_name: &str,
@@ -57,18 +74,26 @@ impl SubmissionRepository {
         .map_err(|_| ApiError::Unknown("error".into()))
     }
 
-    pub async fn save(&self, submission: &CreateSubmission) -> Result<Submission> {
+    pub async fn save(
+        &self,
+        contest_name: String,
+        graph_name: String,
+        user_id: String,
+        content: SubmissionData,
+        metrics: MetricsData,
+    ) -> Result<Submission> {
         let mut conn = super::connection(&self.pool).await?;
         sqlx::query_file_as!(
             Submission,
             "sql/submissions/save.sql",
-            submission.contest_name,
-            submission.graph_name,
-            submission.user_id,
-            json!(submission.content),
+            contest_name,
+            graph_name,
+            user_id,
+            json!(content),
+            json!(metrics)
         )
         .fetch_one(&mut conn)
         .await
-        .map_err(|_| ApiError::Unknown("error".into()))
+        .map_err(|e| ApiError::Unknown(e.to_string()))
     }
 }

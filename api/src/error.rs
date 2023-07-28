@@ -1,8 +1,11 @@
 use axum::{
     http::StatusCode,
     response::{IntoResponse, Response},
+    Json,
 };
+use serde::Serialize;
 
+#[derive(Clone)]
 pub enum ApiError {
     Forbidden(String),
     NotFound(String),
@@ -11,14 +14,18 @@ pub enum ApiError {
 
 impl IntoResponse for ApiError {
     fn into_response(self) -> Response {
-        match self {
-            ApiError::Forbidden(message) => (StatusCode::UNAUTHORIZED, message).into_response(),
-            ApiError::NotFound(message) => (StatusCode::NOT_FOUND, message).into_response(),
-            ApiError::Unknown(message) => {
-                (StatusCode::INTERNAL_SERVER_ERROR, message).into_response()
-            }
-        }
+        let (status_code, message) = match self {
+            ApiError::Forbidden(message) => (StatusCode::UNAUTHORIZED, message),
+            ApiError::NotFound(message) => (StatusCode::NOT_FOUND, message),
+            ApiError::Unknown(message) => (StatusCode::INTERNAL_SERVER_ERROR, message),
+        };
+        (status_code, Json(ErrorContent { message })).into_response()
     }
+}
+
+#[derive(Serialize)]
+pub struct ErrorContent {
+    pub message: String,
 }
 
 pub type Result<T> = std::result::Result<T, ApiError>;

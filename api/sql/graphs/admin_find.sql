@@ -1,9 +1,8 @@
 SELECT 
-  id,
   contest_name,
   graph_name,
-  user_id,
-  (metrics->>'stress')::FLOAT AS score
-FROM submissions
+  created_at,
+  updated_at
+FROM graphs
 WHERE contest_name = $1
   AND graph_name = $2

@@ -1,4 +1,3 @@
-DROP TABLE IF EXISTS admin_users;
 DROP TABLE IF EXISTS submissions;
 DROP TABLE IF EXISTS graphs;
 DROP TABLE IF EXISTS contests;

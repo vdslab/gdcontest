@@ -1,6 +1,6 @@
 {
   "db": "PostgreSQL",
-  "8a15ad7d88cbcdbd41a6ca0d32259f9fbedeae09c88acd2a425efef1f1788ea9": {
+  "0712ddb5827d2e51e029954a2207e7983097d0a2258870b9852f67cc7236f448": {
     "describe": {
       "columns": [
         {
@@ -9,19 +9,527 @@
           "type_info": "Text"
         },
         {
-          "name": "name",
+          "name": "graph_name",
           "ordinal": 1,
           "type_info": "Text"
         },
         {
-          "name": "content!:sqlx::types::Json<GraphContent>",
+          "name": "created_at",
           "ordinal": 2,
-          "type_info": "Json"
+          "type_info": "Timestamp"
         },
         {
-          "name": "distance!:sqlx::types::Json<Vec<Vec<f64>>>",
+          "name": "updated_at",
           "ordinal": 3,
+          "type_info": "Timestamp"
+        }
+      ],
+      "nullable": [
+        false,
+        false,
+        false,
+        false
+      ],
+      "parameters": {
+        "Left": [
+          "Text"
+        ]
+      }
+    },
+    "query": "SELECT \n  contest_name,\n  graph_name,\n  created_at,\n  updated_at\nFROM graphs\nWHERE contest_name = $1\n"
+  },
+  "095cca3695140bac73684e0843dbf45dd054f0f7cd6cef84290128850d38c034": {
+    "describe": {
+      "columns": [
+        {
+          "name": "contest_name",
+          "ordinal": 0,
+          "type_info": "Text"
+        },
+        {
+          "name": "start_at",
+          "ordinal": 1,
+          "type_info": "Timestamp"
+        },
+        {
+          "name": "end_at",
+          "ordinal": 2,
+          "type_info": "Timestamp"
+        }
+      ],
+      "nullable": [
+        false,
+        false,
+        false
+      ],
+      "parameters": {
+        "Left": [
+          "Text"
+        ]
+      }
+    },
+    "query": "SELECT\n  contest_name,\n  start_at,\n  end_at\nFROM contests\nWHERE contest_name = $1\n  AND published = TRUE\n"
+  },
+  "11dd8035c34bb7c235f526140e99bd0b402240276118fc10f5c05e516316ea96": {
+    "describe": {
+      "columns": [
+        {
+          "name": "id",
+          "ordinal": 0,
+          "type_info": "Int4"
+        },
+        {
+          "name": "contest_name",
+          "ordinal": 1,
+          "type_info": "Text"
+        },
+        {
+          "name": "graph_name",
+          "ordinal": 2,
+          "type_info": "Text"
+        },
+        {
+          "name": "user_id",
+          "ordinal": 3,
+          "type_info": "Text"
+        },
+        {
+          "name": "score",
+          "ordinal": 4,
+          "type_info": "Float8"
+        }
+      ],
+      "nullable": [
+        false,
+        false,
+        false,
+        false,
+        null
+      ],
+      "parameters": {
+        "Left": [
+          "Int4"
+        ]
+      }
+    },
+    "query": "SELECT\n  id,\n  contest_name,\n  graph_name,\n  user_id,\n  (metrics->>'stress')::FLOAT AS score\nFROM submissions\nWHERE id = $1\n"
+  },
+  "11fa1668a8d4594915325a298c2fd9e6db936e0835ddc987ff2ece8f21125ae0": {
+    "describe": {
+      "columns": [],
+      "nullable": [],
+      "parameters": {
+        "Left": [
+          "Text"
+        ]
+      }
+    },
+    "query": "DELETE FROM contests\nWHERE contest_name = $1\n"
+  },
+  "244913127929965f1595f787e1a486347cbe44554fab2a71ae48f351ab743b68": {
+    "describe": {
+      "columns": [
+        {
+          "name": "contest_name",
+          "ordinal": 0,
+          "type_info": "Text"
+        },
+        {
+          "name": "start_at",
+          "ordinal": 1,
+          "type_info": "Timestamp"
+        },
+        {
+          "name": "end_at",
+          "ordinal": 2,
+          "type_info": "Timestamp"
+        }
+      ],
+      "nullable": [
+        false,
+        false,
+        false
+      ],
+      "parameters": {
+        "Left": []
+      }
+    },
+    "query": "SELECT\n  contest_name,\n  start_at,\n  end_at\nFROM contests\nWHERE published = TRUE\n"
+  },
+  "5a3a1a377ca48ddff6d5f948654f35117959b8007be343340de9d533fac8d48c": {
+    "describe": {
+      "columns": [
+        {
+          "name": "id",
+          "ordinal": 0,
+          "type_info": "Int4"
+        },
+        {
+          "name": "contest_name",
+          "ordinal": 1,
+          "type_info": "Text"
+        },
+        {
+          "name": "graph_name",
+          "ordinal": 2,
+          "type_info": "Text"
+        },
+        {
+          "name": "user_id",
+          "ordinal": 3,
+          "type_info": "Text"
+        },
+        {
+          "name": "score",
+          "ordinal": 4,
+          "type_info": "Float8"
+        }
+      ],
+      "nullable": [
+        false,
+        false,
+        false,
+        false,
+        null
+      ],
+      "parameters": {
+        "Left": [
+          "Text",
+          "Text",
+          "Text"
+        ]
+      }
+    },
+    "query": "SELECT \n  id,\n  contest_name,\n  graph_name,\n  user_id,\n  (metrics->>'stress')::FLOAT AS score\nFROM submissions\nWHERE contest_name = $1\n  AND graph_name = $2\n  AND user_id = $3\n"
+  },
+  "5aa3cdc4282a99552ff3b96c0b8efd6708ada09207a451fcc927ac469fa17359": {
+    "describe": {
+      "columns": [
+        {
+          "name": "contest_name",
+          "ordinal": 0,
+          "type_info": "Text"
+        },
+        {
+          "name": "graph_name",
+          "ordinal": 1,
+          "type_info": "Text"
+        }
+      ],
+      "nullable": [
+        false,
+        false
+      ],
+      "parameters": {
+        "Left": [
+          "Text",
+          "Text"
+        ]
+      }
+    },
+    "query": "SELECT \n  contest_name,\n  graph_name\nFROM graphs\nWHERE contest_name = $1\n  AND graph_name = $2\n"
+  },
+  "6b9a663af692a0d9b99dc48730b233166e649726cab4416c14a3c735f0680c05": {
+    "describe": {
+      "columns": [
+        {
+          "name": "id",
+          "ordinal": 0,
+          "type_info": "Int4"
+        },
+        {
+          "name": "contest_name",
+          "ordinal": 1,
+          "type_info": "Text"
+        },
+        {
+          "name": "graph_name",
+          "ordinal": 2,
+          "type_info": "Text"
+        },
+        {
+          "name": "user_id",
+          "ordinal": 3,
+          "type_info": "Text"
+        },
+        {
+          "name": "score",
+          "ordinal": 4,
+          "type_info": "Float8"
+        }
+      ],
+      "nullable": [
+        false,
+        false,
+        false,
+        false,
+        null
+      ],
+      "parameters": {
+        "Left": [
+          "Text",
+          "Text",
+          "Text",
+          "Json",
+          "Json"
+        ]
+      }
+    },
+    "query": "INSERT INTO submissions (contest_name, graph_name, user_id, content, metrics)\n  VALUES ($1, $2, $3, $4, $5)\nRETURNING\n  id,\n  contest_name,\n  graph_name,\n  user_id,\n  (metrics->>'stress')::FLOAT AS score\n"
+  },
+  "7e8809faf4ef6429c0db6fe7c12b81ce13d4547d96544c574c374fd72bd8cdc5": {
+    "describe": {
+      "columns": [
+        {
+          "name": "contest_name",
+          "ordinal": 0,
+          "type_info": "Text"
+        },
+        {
+          "name": "graph_name",
+          "ordinal": 1,
+          "type_info": "Text"
+        }
+      ],
+      "nullable": [
+        false,
+        false
+      ],
+      "parameters": {
+        "Left": [
+          "Text"
+        ]
+      }
+    },
+    "query": "SELECT \n  contest_name,\n  graph_name\nFROM graphs\nWHERE contest_name = $1\n"
+  },
+  "8440d4434de8a9b6d2c73147ee830feae6e4655506c4cbd7571d090a5eea2abb": {
+    "describe": {
+      "columns": [
+        {
+          "name": "contest_name",
+          "ordinal": 0,
+          "type_info": "Text"
+        },
+        {
+          "name": "published",
+          "ordinal": 1,
+          "type_info": "Bool"
+        },
+        {
+          "name": "start_at",
+          "ordinal": 2,
+          "type_info": "Timestamp"
+        },
+        {
+          "name": "end_at",
+          "ordinal": 3,
+          "type_info": "Timestamp"
+        },
+        {
+          "name": "created_at",
+          "ordinal": 4,
+          "type_info": "Timestamp"
+        },
+        {
+          "name": "updated_at",
+          "ordinal": 5,
+          "type_info": "Timestamp"
+        }
+      ],
+      "nullable": [
+        false,
+        false,
+        false,
+        false,
+        false,
+        false
+      ],
+      "parameters": {
+        "Left": []
+      }
+    },
+    "query": "SELECT\n  contest_name,\n  published,\n  start_at,\n  end_at,\n  created_at,\n  updated_at\nFROM contests\n"
+  },
+  "ae4593e4733ade1c308e85369bd17d5fa4d24d85c2513bf75702bf285a691859": {
+    "describe": {
+      "columns": [],
+      "nullable": [],
+      "parameters": {
+        "Left": [
+          "Text",
+          "Text"
+        ]
+      }
+    },
+    "query": "DELETE FROM graphs\nWHERE contest_name = $1\n  AND graph_name = $2\n"
+  },
+  "c3ec4ecef938433b7064d21a2ce187854528df6ad2dea5c3ffd33c3f03a95bc4": {
+    "describe": {
+      "columns": [
+        {
+          "name": "contest_name",
+          "ordinal": 0,
+          "type_info": "Text"
+        },
+        {
+          "name": "graph_name",
+          "ordinal": 1,
+          "type_info": "Text"
+        },
+        {
+          "name": "created_at",
+          "ordinal": 2,
+          "type_info": "Timestamp"
+        },
+        {
+          "name": "updated_at",
+          "ordinal": 3,
+          "type_info": "Timestamp"
+        }
+      ],
+      "nullable": [
+        false,
+        false,
+        false,
+        false
+      ],
+      "parameters": {
+        "Left": [
+          "Text",
+          "Text"
+        ]
+      }
+    },
+    "query": "SELECT \n  contest_name,\n  graph_name,\n  created_at,\n  updated_at\nFROM graphs\nWHERE contest_name = $1\n  AND graph_name = $2\n"
+  },
+  "c9b414bcb74d5ecc94c2b3d9b46de5ae08b5eca10f59115fb67e087895e35cf6": {
+    "describe": {
+      "columns": [
+        {
+          "name": "content!:sqlx::types::Json<GraphData>",
+          "ordinal": 0,
           "type_info": "Json"
+        }
+      ],
+      "nullable": [
+        false
+      ],
+      "parameters": {
+        "Left": [
+          "Text",
+          "Text"
+        ]
+      }
+    },
+    "query": "SELECT \n  content AS \"content!:sqlx::types::Json<GraphData>\"\nFROM graphs\nWHERE contest_name = $1\n  AND graph_name = $2\n"
+  },
+  "d7cc6ec4d325247c1d43c1f2034ded6b8dd588a8cd34784c4bfd9fc8c1089d58": {
+    "describe": {
+      "columns": [
+        {
+          "name": "contest_name",
+          "ordinal": 0,
+          "type_info": "Text"
+        },
+        {
+          "name": "graph_name",
+          "ordinal": 1,
+          "type_info": "Text"
+        },
+        {
+          "name": "user_id",
+          "ordinal": 2,
+          "type_info": "Text"
+        },
+        {
+          "name": "score",
+          "ordinal": 3,
+          "type_info": "Float8"
+        }
+      ],
+      "nullable": [
+        false,
+        false,
+        false,
+        null
+      ],
+      "parameters": {
+        "Left": [
+          "Text",
+          "Text"
+        ]
+      }
+    },
+    "query": "SELECT \n  contest_name,\n  graph_name,\n  user_id,\n  MIN((metrics->>'stress')::FLOAT) AS score\nFROM submissions\nWHERE contest_name = $1\n  AND graph_name = $2\n  AND metrics->>'stress' IS NOT NULL\nGROUP BY contest_name, graph_name, user_id\nORDER BY score ASC\n"
+  },
+  "e0883d4d17e173035d4a57d776758030cb3eacaa0fe97a0797db8d44705e81ef": {
+    "describe": {
+      "columns": [
+        {
+          "name": "id",
+          "ordinal": 0,
+          "type_info": "Int4"
+        },
+        {
+          "name": "contest_name",
+          "ordinal": 1,
+          "type_info": "Text"
+        },
+        {
+          "name": "graph_name",
+          "ordinal": 2,
+          "type_info": "Text"
+        },
+        {
+          "name": "user_id",
+          "ordinal": 3,
+          "type_info": "Text"
+        },
+        {
+          "name": "score",
+          "ordinal": 4,
+          "type_info": "Float8"
+        }
+      ],
+      "nullable": [
+        false,
+        false,
+        false,
+        false,
+        null
+      ],
+      "parameters": {
+        "Left": [
+          "Text",
+          "Text"
+        ]
+      }
+    },
+    "query": "SELECT \n  id,\n  contest_name,\n  graph_name,\n  user_id,\n  (metrics->>'stress')::FLOAT AS score\nFROM submissions\nWHERE contest_name = $1\n  AND graph_name = $2\n"
+  },
+  "e999cfcc0d2f51af0c84e68ec403fbe127b05f0101decea5061705b6f411e24d": {
+    "describe": {
+      "columns": [
+        {
+          "name": "contest_name",
+          "ordinal": 0,
+          "type_info": "Text"
+        },
+        {
+          "name": "graph_name",
+          "ordinal": 1,
+          "type_info": "Text"
+        },
+        {
+          "name": "created_at",
+          "ordinal": 2,
+          "type_info": "Timestamp"
+        },
+        {
+          "name": "updated_at",
+          "ordinal": 3,
+          "type_info": "Timestamp"
         }
       ],
       "nullable": [
@@ -35,51 +543,13 @@
           "Text",
           "Text",
           "Json",
-          "Json"
+          "Bytea"
         ]
       }
     },
-    "query": "INSERT INTO graphs (contest_name, name, content, distance) VALUES ($1, $2, $3, $3)\n        ON CONFLICT (contest_name, name)\n        DO UPDATE SET content=$3, distance=$4\n        RETURNING\n          contest_name,\n          name,\n          content AS \"content!:sqlx::types::Json<GraphContent>\",\n          distance AS \"distance!:sqlx::types::Json<Vec<Vec<f64>>>\""
+    "query": "INSERT INTO graphs (contest_name, graph_name, content, distance)\n  VALUES ($1, $2, $3, $4)\nON CONFLICT (contest_name, graph_name)\nDO UPDATE SET content=$3, distance=$4, updated_at=CURRENT_TIMESTAMP\nRETURNING\n  contest_name,\n  graph_name,\n  created_at,\n  updated_at\n"
   },
-  "91f60eb127601ae0dd9bd76e92036b2def5502806a0d983560820ffe2559fb17": {
-    "describe": {
-      "columns": [
-        {
-          "name": "name",
-          "ordinal": 0,
-          "type_info": "Text"
-        }
-      ],
-      "nullable": [
-        false
-      ],
-      "parameters": {
-        "Left": [
-          "Text"
-        ]
-      }
-    },
-    "query": "SELECT * FROM contests WHERE name = $1"
-  },
-  "a0cafc86f213d60b3bd0391b378fc74600b46752b0b2e85f311cdd07a28fac41": {
-    "describe": {
-      "columns": [
-        {
-          "name": "name",
-          "ordinal": 0,
-          "type_info": "Text"
-        }
-      ],
-      "nullable": [
-        false
-      ],
-      "parameters": {
-        "Left": []
-      }
-    },
-    "query": "SELECT * FROM contests"
-  },
-  "ab7e7b9b2f7d4dcdbe83ab11206bf8dccb1b89893ef2fd8e250f205798152ada": {
+  "ebeed4f2ed3a4ccb8ec9f07df1cb5da4d187a05564fed20e59b176d82b3c91cc": {
     "describe": {
       "columns": [
         {
@@ -88,22 +558,34 @@
           "type_info": "Text"
         },
         {
-          "name": "name",
+          "name": "published",
           "ordinal": 1,
-          "type_info": "Text"
+          "type_info": "Bool"
         },
         {
-          "name": "content!:sqlx::types::Json<GraphContent>",
+          "name": "start_at",
           "ordinal": 2,
-          "type_info": "Json"
+          "type_info": "Timestamp"
         },
         {
-          "name": "distance!:sqlx::types::Json<Vec<Vec<f64>>>",
+          "name": "end_at",
           "ordinal": 3,
-          "type_info": "Json"
+          "type_info": "Timestamp"
+        },
+        {
+          "name": "created_at",
+          "ordinal": 4,
+          "type_info": "Timestamp"
+        },
+        {
+          "name": "updated_at",
+          "ordinal": 5,
+          "type_info": "Timestamp"
         }
       ],
       "nullable": [
+        false,
+        false,
         false,
         false,
         false,
@@ -111,22 +593,76 @@
       ],
       "parameters": {
         "Left": [
-          "Text"
+          "Text",
+          "Bool",
+          "Timestamp",
+          "Timestamp"
         ]
       }
     },
-    "query": "SELECT \n          contest_name,\n          name,\n          content AS \"content!:sqlx::types::Json<GraphContent>\",\n          distance AS \"distance!:sqlx::types::Json<Vec<Vec<f64>>>\"\n         FROM graphs WHERE contest_name = $1"
+    "query": "INSERT INTO contests (contest_name, published, start_at, end_at)\n  VALUES ($1, $2, $3, $4)\nON CONFLICT (contest_name)\nDO UPDATE SET\n  published=$2,\n  start_at=$3,\n  end_at=$4,\n  updated_at=CURRENT_TIMESTAMP\nRETURNING\n  contest_name,\n  published,\n  start_at,\n  end_at,\n  created_at,\n  updated_at\n"
   },
-  "ef96af90cba2291ed45fa16b0350a7a4795abb2f706147e6b3f353e23267e46c": {
+  "f217639a4cf00daaeca9e0dc39efe80a4352e5ffcc18e698a8a9a2eb1015f85f": {
     "describe": {
       "columns": [
         {
-          "name": "user_id",
+          "name": "distance",
           "ordinal": 0,
-          "type_info": "Text"
+          "type_info": "Bytea"
         }
       ],
       "nullable": [
+        false
+      ],
+      "parameters": {
+        "Left": [
+          "Text",
+          "Text"
+        ]
+      }
+    },
+    "query": "SELECT \n  distance\nFROM graphs\nWHERE contest_name = $1\n  AND graph_name = $2\n"
+  },
+  "f261dc95cc44916d13930fc52e772d05b1cb09028299b78dd993189393793cce": {
+    "describe": {
+      "columns": [
+        {
+          "name": "contest_name",
+          "ordinal": 0,
+          "type_info": "Text"
+        },
+        {
+          "name": "published",
+          "ordinal": 1,
+          "type_info": "Bool"
+        },
+        {
+          "name": "start_at",
+          "ordinal": 2,
+          "type_info": "Timestamp"
+        },
+        {
+          "name": "end_at",
+          "ordinal": 3,
+          "type_info": "Timestamp"
+        },
+        {
+          "name": "created_at",
+          "ordinal": 4,
+          "type_info": "Timestamp"
+        },
+        {
+          "name": "updated_at",
+          "ordinal": 5,
+          "type_info": "Timestamp"
+        }
+      ],
+      "nullable": [
+        false,
+        false,
+        false,
+        false,
+        false,
         false
       ],
       "parameters": {
@@ -135,6 +671,6 @@
         ]
       }
     },
-    "query": "SELECT * FROM admin_users WHERE user_id = $1"
+    "query": "SELECT\n  contest_name,\n  published,\n  start_at,\n  end_at,\n  created_at,\n  updated_at\nFROM contests\nWHERE contest_name = $1\n"
   }
 }
