@@ -1,14 +1,6 @@
-import { withPageAuthRequired } from "@auth0/nextjs-auth0";
-import {
-  Button,
-  Input,
-  Link,
-  Spacer,
-  Table,
-  useInput,
-} from "@nextui-org/react";
+import NextLink from "next/link";
+import { Collapse, Input, Spacer, Table } from "@nextui-org/react";
 import { Section } from "@/components/Section";
-import { useRouter } from "next/router";
 import { fetchContest, fetchGraphs } from "@/api";
 
 export async function getServerSideProps(req) {
@@ -26,40 +18,57 @@ export async function getServerSideProps(req) {
 export default function ContestDetailPage({ contest, graphs }) {
   return (
     <>
-      <Section>{contest.contest_name}</Section>
       <Section>
-        <Table aria-label="graphs">
-          <Table.Header>
-            <Table.Column>Graph Name</Table.Column>
-            <Table.Column>Action</Table.Column>
-          </Table.Header>
-          <Table.Body>
-            {graphs.map((graph) => {
-              return (
-                <Table.Row key={graph.graph_name}>
-                  <Table.Cell>{graph.graph_name}</Table.Cell>
-                  <Table.Cell>
-                    <Link
-                      href={`http://localhost:8080/contests/${graph.contest_name}/graphs/${graph.graph_name}/content`}
-                      download={`${graph.contest_name}-${graph.graph_name}.json`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      isExternal
-                    >
-                      Download
-                    </Link>
-                    <br />
-                    <Link
-                      href={`/contests/${graph.contest_name}/${graph.graph_name}`}
-                    >
-                      Submit
-                    </Link>
-                  </Table.Cell>
-                </Table.Row>
-              );
-            })}
-          </Table.Body>
-        </Table>
+        <Collapse.Group>
+          <Collapse title="Contest Detail">
+            <Input
+              label="Contest Name"
+              fullWidth
+              value={contest.contest_name}
+              readOnly
+            />
+            <Spacer />
+            <Input
+              label="Start"
+              type="datetime-local"
+              fullWidth
+              value={contest.start_at}
+              readOnly
+            />
+            <Spacer />
+            <Input
+              label="End"
+              type="datetime-local"
+              fullWidth
+              value={contest.end_at}
+              readOnly
+            />
+          </Collapse>
+          <Collapse title="Graphs" expanded>
+            <Table aria-label="graphs">
+              <Table.Header>
+                <Table.Column>Graph Name</Table.Column>
+                <Table.Column>Action</Table.Column>
+              </Table.Header>
+              <Table.Body>
+                {graphs.map((graph) => {
+                  return (
+                    <Table.Row key={graph.graph_name}>
+                      <Table.Cell>{graph.graph_name}</Table.Cell>
+                      <Table.Cell>
+                        <NextLink
+                          href={`/contests/${graph.contest_name}/${graph.graph_name}`}
+                        >
+                          Show
+                        </NextLink>
+                      </Table.Cell>
+                    </Table.Row>
+                  );
+                })}
+              </Table.Body>
+            </Table>
+          </Collapse>
+        </Collapse.Group>
       </Section>
     </>
   );

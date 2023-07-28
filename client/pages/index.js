@@ -1,12 +1,10 @@
+import { fetchContests } from "@/api";
 import { Section } from "@/components/Section";
-import { Button, Link, Table } from "@nextui-org/react";
+import { Link, Table } from "@nextui-org/react";
+import NextLink from "next/link";
 
-export async function getServerSideProps({ req }) {
-  console.log(req);
-  const response = await fetch(
-    `${process.env.API_ORIGIN}/contests/${req.query.contestName}`,
-  );
-  const contest = await response.json();
+export async function getServerSideProps({}) {
+  const contests = await fetchContests();
   return {
     props: {
       contests,
@@ -29,9 +27,9 @@ export default function HomePage({ contests }) {
               return (
                 <Table.Row key={contest.contest_name}>
                   <Table.Cell>
-                    <Link href={`/contests/${contest.contest_name}`}>
+                    <NextLink href={`/contests/${contest.contest_name}`}>
                       {contest.contest_name}
-                    </Link>
+                    </NextLink>
                   </Table.Cell>
                   <Table.Cell>{contest.start_at}</Table.Cell>
                   <Table.Cell>{contest.end_at}</Table.Cell>

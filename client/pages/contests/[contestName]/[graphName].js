@@ -17,6 +17,7 @@ import {
 import { useRef } from "react";
 import { useUser } from "@auth0/nextjs-auth0/client";
 import { useRouter } from "next/router";
+import NextLink from "next/link";
 
 export async function getServerSideProps(req) {
   const { contestName, graphName } = req.query;
@@ -45,8 +46,9 @@ export default function GraphDetailPage({ graph, graphContent, submissions }) {
   return (
     <>
       <Section>
+        <NextLink href={`/contests/${graph.contest_name}`}>back</NextLink>
         <Collapse.Group>
-          <Collapse title="Data" expanded>
+          <Collapse title="Graph Detail" expanded>
             <Input
               label="Contest Name"
               fullWidth
