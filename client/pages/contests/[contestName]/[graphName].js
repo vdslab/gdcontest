@@ -46,7 +46,12 @@ export default function GraphDetailPage({ graph, graphContent, submissions }) {
   return (
     <>
       <Section>
-        <NextLink href={`/contests/${graph.contest_name}`}>back</NextLink>
+        <NextLink
+          href="/contests/[contestName]"
+          as={`/contests/${graph.contest_name}`}
+        >
+          back
+        </NextLink>
         <Collapse.Group>
           <Collapse title="Graph Detail" expanded>
             <Input

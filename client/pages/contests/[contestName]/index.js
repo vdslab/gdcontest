@@ -57,7 +57,8 @@ export default function ContestDetailPage({ contest, graphs }) {
                       <Table.Cell>{graph.graph_name}</Table.Cell>
                       <Table.Cell>
                         <NextLink
-                          href={`/contests/${graph.contest_name}/${graph.graph_name}`}
+                          href="/contests/[contestName]/[graphName]"
+                          as={`/contests/${graph.contest_name}/${graph.graph_name}`}
                         >
                           Show
                         </NextLink>
