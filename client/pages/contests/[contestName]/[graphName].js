@@ -199,7 +199,14 @@ export default function GraphDetailPage({
             <tbody>
               {submissions.map((submission, i) => {
                 return (
-                  <tr key={i}>
+                  <tr
+                    key={i}
+                    className={
+                      user && submission.user_id === user.sub
+                        ? "is-selected"
+                        : ""
+                    }
+                  >
                     <td>{i + 1}</td>
                     <td>
                       {submission.user_nickname ||
