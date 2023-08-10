@@ -57,7 +57,9 @@ export default function GraphDetailPage({
       return postSubmission(graph.contest_name, graph.graph_name, content);
     },
     onSuccess: () => {
+      textareaRef.current.value = "";
       queryClient.invalidateQueries({ queryKey: ["submissions"] });
+      alert("Submission is completed");
     },
   });
   const graphContentBlob = new Blob([JSON.stringify(graphContent)], {
@@ -137,6 +139,7 @@ export default function GraphDetailPage({
             type="file"
             onChange={async (event) => {
               textareaRef.current.value = await event.target.files[0].text();
+              fileRef.current.value = "";
             }}
           />
           <div className="field">
