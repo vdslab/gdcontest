@@ -24,7 +24,7 @@ export async function getStaticProps({ params }) {
       graphContent,
       submissions,
     },
-    revalidate: 10,
+    revalidate: 60,
   };
 }
 
