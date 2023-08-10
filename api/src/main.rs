@@ -55,6 +55,10 @@ async fn main() {
         .route(
             "/contests/:contest_name/graphs/:graph_name/distance",
             get(handlers::graph::admin_get_distance::<GraphRepositoryForDB, ValidatorImpl>),
+        )
+        .route(
+            "/users/:user_id",
+            put(handlers::user::admin_put::<UserRepositoryForDB, ValidatorImpl>),
         );
     let app = Router::new()
         .route("/contests", get(handlers::contest::list))
