@@ -3,10 +3,13 @@ import {
   fetchGraph,
   fetchGraphContent,
   fetchStanginsSubmissions,
+  postSubmission,
 } from "@/api";
 import { useRef } from "react";
 import { useUser } from "@auth0/nextjs-auth0/client";
 import Link from "next/link";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useRouter } from "next/router";
 
 export async function getStaticProps({ params }) {
   const { contestName, graphName } = params;
@@ -32,10 +35,31 @@ export async function getStaticPaths() {
   };
 }
 
-export default function GraphDetailPage({ graph, graphContent, submissions }) {
-  const { user } = useUser();
+export default function GraphDetailPage({
+  graph,
+  graphContent,
+  submissions: initialSubmissions,
+}) {
   const fileRef = useRef();
   const textareaRef = useRef();
+  const router = useRouter();
+  const { user, isLoading } = useUser();
+  const queryClient = useQueryClient();
+  const { data: submissions } = useQuery({
+    queryKey: ["submissions"],
+    queryFn: () => {
+      return fetchStanginsSubmissions(graph.contest_name, graph.graph_name);
+    },
+    initialData: initialSubmissions,
+  });
+  const mutation = useMutation({
+    mutationFn: (content) => {
+      return postSubmission(graph.contest_name, graph.graph_name, content);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["submissions"] });
+    },
+  });
   const graphContentBlob = new Blob([JSON.stringify(graphContent)], {
     type: "application/json",
   });
@@ -94,19 +118,17 @@ export default function GraphDetailPage({ graph, graphContent, submissions }) {
       <div className="block">
         <h3 className="title">Submission</h3>
         <form
-          onSubmit={async (event) => {
+          onSubmit={(event) => {
             event.preventDefault();
-            const request = await fetch(
-              `/api/submissions/${graph.contest_name}/${graph.graph_name}`,
-              {
-                method: "POST",
-                body: JSON.stringify(textareaRef.current.value),
-                headers: {
-                  "Content-Type": "application/json",
-                },
-              },
+            const content = validate(
+              graphContent,
+              JSON.parse(textareaRef.current.value),
             );
-            await request.json();
+            if (content) {
+              mutation.mutate(content);
+            } else {
+              alert("Invalid submission");
+            }
           }}
         >
           <input
@@ -126,6 +148,14 @@ export default function GraphDetailPage({ graph, graphContent, submissions }) {
                 disabled={!user}
               />
             </div>
+            {!isLoading && !user && (
+              <p className="help">
+                <Link href={`/api/auth/login?returnTo=${router.asPath}`}>
+                  Login
+                </Link>{" "}
+                required.
+              </p>
+            )}
           </div>
           <div className="field">
             <div className="control">
@@ -154,27 +184,53 @@ export default function GraphDetailPage({ graph, graphContent, submissions }) {
       </div>
       <div className="block">
         <h3 className="title">Standings</h3>
-        <table className="table is-bordered is-fullwidth">
-          <thead>
-            <tr>
-              <th>Position</th>
-              <th>User</th>
-              <th>Score</th>
-            </tr>
-          </thead>
-          <tbody>
-            {submissions.map((submission, i) => {
-              return (
-                <tr key={i}>
-                  <td>{i + 1}</td>
-                  <td>{submission.user_id}</td>
-                  <td>{submission.score}</td>
-                </tr>
-              );
-            })}
-          </tbody>
-        </table>
+        <div className="table-container">
+          <table className="table is-bordered is-fullwidth">
+            <thead>
+              <tr>
+                <th>Position</th>
+                <th>User</th>
+                <th>Score</th>
+              </tr>
+            </thead>
+            <tbody>
+              {submissions.map((submission, i) => {
+                return (
+                  <tr key={i}>
+                    <td>{i + 1}</td>
+                    <td>
+                      {submission.user_nickname ||
+                        submission.user_name ||
+                        submission.user_id}
+                    </td>
+                    <td>{submission.score}</td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
       </div>
     </>
   );
+}
+
+function validate(graph, drawing) {
+  const validatedDrawing = {};
+  for (const key of Object.keys(drawing)) {
+    validatedDrawing[`${key}`] = [+drawing[key][0], +drawing[key][1]];
+  }
+  if (Object.keys(validatedDrawing).length !== graph.nodes.length) {
+    return null;
+  }
+  for (const node of graph.nodes) {
+    if (
+      !validatedDrawing[node.id] ||
+      !Number.isFinite(validatedDrawing[node.id][0]) ||
+      !Number.isFinite(validatedDrawing[node.id][1])
+    ) {
+      return null;
+    }
+  }
+  return validatedDrawing;
 }

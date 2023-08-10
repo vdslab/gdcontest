@@ -23,7 +23,6 @@ export async function getStaticPaths() {
 }
 
 export default function ContestDetailPage({ contest, graphs }) {
-  const router = useRouter();
   return (
     <>
       <div className="block">
@@ -68,28 +67,30 @@ export default function ContestDetailPage({ contest, graphs }) {
       </div>
       <div className="block">
         <h3 className="title">Graphs</h3>
-        <table className="table is-bordered is-fullwidth">
-          <thead>
-            <tr>
-              <th>Graph Name</th>
-            </tr>
-          </thead>
-          <tbody>
-            {graphs.map((graph) => {
-              return (
-                <tr key={graph.graph_name}>
-                  <td>
-                    <Link
-                      href={`/contests/${graph.contest_name}/${graph.graph_name}`}
-                    >
-                      {graph.graph_name}
-                    </Link>
-                  </td>
-                </tr>
-              );
-            })}
-          </tbody>
-        </table>
+        <div className="table-container">
+          <table className="table is-bordered is-fullwidth">
+            <thead>
+              <tr>
+                <th>Graph Name</th>
+              </tr>
+            </thead>
+            <tbody>
+              {graphs.map((graph) => {
+                return (
+                  <tr key={graph.graph_name}>
+                    <td>
+                      <Link
+                        href={`/contests/${graph.contest_name}/${graph.graph_name}`}
+                      >
+                        {graph.graph_name}
+                      </Link>
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
       </div>
     </>
   );

@@ -16,30 +16,32 @@ export default function HomePage({ contests }) {
     <>
       <div className="block">
         <h3 className="title">Contests</h3>
-        <table className="table is-bordered is-fullwidth">
-          <thead>
-            <tr>
-              <th>Contest Name</th>
-              <th>Start</th>
-              <th>End</th>
-            </tr>
-          </thead>
-          <tbody>
-            {contests.map((contest) => {
-              return (
-                <tr key={contest.contest_name}>
-                  <td>
-                    <Link href={`/contests/${contest.contest_name}`}>
-                      {contest.contest_name}
-                    </Link>
-                  </td>
-                  <td>{contest.start_at}</td>
-                  <td>{contest.end_at}</td>
-                </tr>
-              );
-            })}
-          </tbody>
-        </table>
+        <div className="table-container">
+          <table className="table is-bordered is-fullwidth">
+            <thead>
+              <tr>
+                <th>Contest Name</th>
+                <th>Start</th>
+                <th>End</th>
+              </tr>
+            </thead>
+            <tbody>
+              {contests.map((contest) => {
+                return (
+                  <tr key={contest.contest_name}>
+                    <td>
+                      <Link href={`/contests/${contest.contest_name}`}>
+                        {contest.contest_name}
+                      </Link>
+                    </td>
+                    <td>{contest.start_at}</td>
+                    <td>{contest.end_at}</td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
       </div>
     </>
   );

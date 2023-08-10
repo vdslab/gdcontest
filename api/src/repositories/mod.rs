@@ -1,9 +1,11 @@
 mod contest;
 mod graph;
 mod submission;
+mod user;
 pub use contest::*;
 pub use graph::*;
 pub use submission::*;
+pub use user::*;
 
 use crate::error::{ApiError, Result};
 use sqlx::{PgConnection, PgPool};

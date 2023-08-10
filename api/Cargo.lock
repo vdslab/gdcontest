@@ -78,6 +78,7 @@ name = "api"
 version = "0.1.0"
 dependencies = [
  "alcoholic_jwt",
+ "async-trait",
  "axum",
  "axum-auth",
  "chrono",

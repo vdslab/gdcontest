@@ -1,82 +1,110 @@
-use crate::{auth::validate_user, error::Result, models::*, repositories::*};
+use crate::{auth::Validator, error::Result, graph::*, repositories::*};
 use axum::{extract::Path, Extension, Json};
 use axum_auth::AuthBasic;
 use std::sync::Arc;
 
-pub async fn list(
+pub async fn list<R>(
     Path(contest_name): Path<String>,
-    Extension(graphs): Extension<Arc<GraphRepository>>,
-) -> Result<Json<Vec<Graph>>> {
+    Extension(graphs): Extension<Arc<R>>,
+) -> Result<Json<Vec<Graph>>>
+where
+    R: GraphRepository,
+{
     graphs
         .find_all(&contest_name)
         .await
         .map(|records| Json(records))
 }
 
-pub async fn get(
+pub async fn get<R>(
     Path((contest_name, graph_name)): Path<(String, String)>,
-    Extension(graphs): Extension<Arc<GraphRepository>>,
-) -> Result<Json<Graph>> {
+    Extension(graphs): Extension<Arc<R>>,
+) -> Result<Json<Graph>>
+where
+    R: GraphRepository,
+{
     graphs
         .find(&contest_name, &graph_name)
         .await
         .map(|record| Json(record))
 }
 
-pub async fn get_content(
+pub async fn get_content<R>(
     Path((contest_name, graph_name)): Path<(String, String)>,
-    Extension(graphs): Extension<Arc<GraphRepository>>,
-) -> Result<Json<GraphData>> {
+    Extension(graphs): Extension<Arc<R>>,
+) -> Result<Json<GraphData>>
+where
+    R: GraphRepository,
+{
     graphs
         .find_content(&contest_name, &graph_name)
         .await
         .map(|record| Json(record))
 }
 
-pub async fn admin_list(
+pub async fn admin_list<R, V>(
     Path(contest_name): Path<String>,
-    Extension(graphs): Extension<Arc<AdminGraphRepository>>,
-    AuthBasic((user, password)): AuthBasic,
-) -> Result<Json<Vec<AdminGraph>>> {
-    validate_user(user, password).await?;
+    Extension(graphs): Extension<Arc<R>>,
+    Extension(validator): Extension<Arc<V>>,
+    AuthBasic(auth): AuthBasic,
+) -> Result<Json<Vec<Graph>>>
+where
+    R: GraphRepository,
+    V: Validator,
+{
+    validator.validate_user(auth).await?;
     graphs
         .find_all(&contest_name)
         .await
         .map(|records| Json(records))
 }
 
-pub async fn admin_get(
+pub async fn admin_get<R, V>(
     Path((contest_name, graph_name)): Path<(String, String)>,
-    Extension(graphs): Extension<Arc<AdminGraphRepository>>,
-    AuthBasic((user, password)): AuthBasic,
-) -> Result<Json<AdminGraph>> {
-    validate_user(user, password).await?;
+    Extension(graphs): Extension<Arc<R>>,
+    Extension(validator): Extension<Arc<V>>,
+    AuthBasic(auth): AuthBasic,
+) -> Result<Json<Graph>>
+where
+    R: GraphRepository,
+    V: Validator,
+{
+    validator.validate_user(auth).await?;
     graphs
         .find(&contest_name, &graph_name)
         .await
         .map(|record| Json(record))
 }
 
-pub async fn admin_get_content(
+pub async fn admin_get_content<R, V>(
     Path((contest_name, graph_name)): Path<(String, String)>,
-    Extension(graphs): Extension<Arc<AdminGraphRepository>>,
-    AuthBasic((user, password)): AuthBasic,
-) -> Result<Json<GraphData>> {
-    validate_user(user, password).await?;
+    Extension(graphs): Extension<Arc<R>>,
+    Extension(validator): Extension<Arc<V>>,
+    AuthBasic(auth): AuthBasic,
+) -> Result<Json<GraphData>>
+where
+    R: GraphRepository,
+    V: Validator,
+{
+    validator.validate_user(auth).await?;
     graphs
         .find_content(&contest_name, &graph_name)
         .await
         .map(|record| Json(record))
 }
 
-pub async fn admin_get_distance(
+pub async fn admin_get_distance<R, V>(
     Path((contest_name, graph_name)): Path<(String, String)>,
-    Extension(graphs): Extension<Arc<AdminGraphRepository>>,
-    AuthBasic((user, password)): AuthBasic,
-) -> Result<Json<Vec<Vec<f64>>>> {
-    validate_user(user, password).await?;
+    Extension(graphs): Extension<Arc<R>>,
+    Extension(validator): Extension<Arc<V>>,
+    AuthBasic(auth): AuthBasic,
+) -> Result<Json<Vec<Vec<f64>>>>
+where
+    R: GraphRepository,
+    V: Validator,
+{
+    validator.validate_user(auth).await?;
     let distance = graphs.find_distance(&contest_name, &graph_name).await?;
-    let distance = distance_from_bytes(distance);
     let n = (distance.len() as f64).sqrt() as usize;
     let mut response = vec![vec![0.; n]; n];
     for i in 0..n {
@@ -87,13 +115,24 @@ pub async fn admin_get_distance(
     Ok(Json(response))
 }
 
-pub async fn admin_put(
+pub async fn admin_put<R, V>(
     Path((contest_name, graph_name)): Path<(String, String)>,
-    Extension(graphs): Extension<Arc<AdminGraphRepository>>,
-    AuthBasic((user, password)): AuthBasic,
+    Extension(graphs): Extension<Arc<R>>,
+    Extension(validator): Extension<Arc<V>>,
+    AuthBasic(auth): AuthBasic,
     Json(graph): Json<GraphData>,
-) -> Result<Json<AdminGraph>> {
-    validate_user(user, password).await?;
-    let graph = AdminUpsertGraph::new(contest_name, graph_name, graph);
-    graphs.save(&graph).await.map(|record| Json(record))
+) -> Result<Json<Graph>>
+where
+    R: GraphRepository,
+    V: Validator,
+{
+    validator.validate_user(auth).await?;
+    let distance = compute_distance(&graph);
+    let graph = UpsertGraph {
+        contest_name,
+        graph_name,
+        content: graph,
+        distance,
+    };
+    graphs.save(graph).await.map(|record| Json(record))
 }

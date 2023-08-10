@@ -26,53 +26,16 @@ pub struct GraphData {
     pub links: Vec<GraphLink>,
 }
 
-pub type DistanceData = Vec<u8>;
+pub type DistanceData = Vec<f64>;
 
-#[derive(Serialize)]
-pub struct Graph {
-    pub contest_name: String,
-    pub graph_name: String,
-}
-
-#[derive(Serialize)]
-pub struct GraphContent {
-    pub content: sqlx::types::Json<GraphData>,
-}
-
-#[derive(Serialize)]
-pub struct GraphDistance {
-    pub distance: DistanceData,
-}
-
-#[derive(Serialize)]
-pub struct AdminGraph {
-    pub contest_name: String,
-    pub graph_name: String,
-    pub created_at: sqlx::types::chrono::NaiveDateTime,
-    pub updated_at: sqlx::types::chrono::NaiveDateTime,
-}
+pub type SubmissionData = HashMap<String, (f64, f64)>;
 
 #[derive(Deserialize, Serialize)]
-pub struct AdminUpsertGraph {
-    pub contest_name: String,
-    pub graph_name: String,
-    pub content: sqlx::types::Json<GraphData>,
-    pub distance: DistanceData,
+pub struct MetricsData {
+    pub stress: Option<f64>,
 }
 
-impl AdminUpsertGraph {
-    pub fn new(contest_name: String, graph_name: String, content: GraphData) -> AdminUpsertGraph {
-        let d = compute_distance(&content);
-        AdminUpsertGraph {
-            contest_name,
-            graph_name,
-            content: sqlx::types::Json(content),
-            distance: distance_into_bytes(d),
-        }
-    }
-}
-
-fn compute_distance(graph: &GraphData) -> Vec<f64> {
+pub fn compute_distance(graph: &GraphData) -> Vec<f64> {
     let n = graph.nodes.len();
     let mut distance = vec![std::f64::INFINITY; n * n];
 
@@ -108,22 +71,26 @@ fn compute_distance(graph: &GraphData) -> Vec<f64> {
     distance
 }
 
-pub fn distance_from_bytes(bytes: Vec<u8>) -> Vec<f64> {
-    unsafe {
-        std::slice::from_raw_parts(
-            bytes.as_ptr() as *const f64,
-            bytes.len() / std::mem::size_of::<f64>(),
-        )
-        .to_vec()
+pub fn compute_metrics(
+    graph: &GraphData,
+    distance: &Vec<f64>,
+    drawing: &SubmissionData,
+) -> MetricsData {
+    MetricsData {
+        stress: Some(compute_stress(graph, distance, drawing)),
     }
 }
 
-pub fn distance_into_bytes(distance: Vec<f64>) -> Vec<u8> {
-    unsafe {
-        std::slice::from_raw_parts(
-            distance.as_ptr() as *const u8,
-            distance.len() * std::mem::size_of::<f64>(),
-        )
-        .to_vec()
+fn compute_stress(graph: &GraphData, distance: &Vec<f64>, drawing: &SubmissionData) -> f64 {
+    let n = drawing.len();
+    let mut s = 0.;
+    for i in 1..n {
+        for j in 0..i {
+            let dx = drawing[&graph.nodes[i].id].0 - drawing[&graph.nodes[j].id].0;
+            let dy = drawing[&graph.nodes[i].id].1 - drawing[&graph.nodes[j].id].1;
+            let e = ((dx * dx + dy * dy).sqrt() - distance[i * n + j]) / distance[i * n + j];
+            s += e * e;
+        }
     }
+    s
 }

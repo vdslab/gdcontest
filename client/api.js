@@ -1,39 +1,52 @@
 export async function fetchContests() {
-  const response = await fetch(`${process.env.API_ORIGIN}/contests`);
+  const response = await fetch(
+    `${process.env.NEXT_PUBLIC_API_ORIGIN}/contests`,
+  );
   return response.json();
 }
 
 export async function fetchContest(contestName) {
   const response = await fetch(
-    `${process.env.API_ORIGIN}/contests/${contestName}`,
+    `${process.env.NEXT_PUBLIC_API_ORIGIN}/contests/${contestName}`,
   );
   return response.json();
 }
 
 export async function fetchGraphs(contestName) {
   const response = await fetch(
-    `${process.env.API_ORIGIN}/contests/${contestName}/graphs`,
+    `${process.env.NEXT_PUBLIC_API_ORIGIN}/contests/${contestName}/graphs`,
   );
   return response.json();
 }
 
 export async function fetchGraph(contestName, graphName) {
   const response = await fetch(
-    `${process.env.API_ORIGIN}/contests/${contestName}/graphs/${graphName}`,
+    `${process.env.NEXT_PUBLIC_API_ORIGIN}/contests/${contestName}/graphs/${graphName}`,
   );
   return response.json();
 }
 
 export async function fetchGraphContent(contestName, graphName) {
   const response = await fetch(
-    `${process.env.API_ORIGIN}/contests/${contestName}/graphs/${graphName}/content`,
+    `${process.env.NEXT_PUBLIC_API_ORIGIN}/contests/${contestName}/graphs/${graphName}/content`,
   );
   return response.json();
 }
 
 export async function fetchStanginsSubmissions(contestName, graphName) {
   const response = await fetch(
-    `${process.env.API_ORIGIN}/contests/${contestName}/graphs/${graphName}/standings`,
+    `${process.env.NEXT_PUBLIC_API_ORIGIN}/contests/${contestName}/graphs/${graphName}/standings`,
   );
+  return response.json();
+}
+
+export async function postSubmission(contestName, graphName, content) {
+  const response = await fetch(`/api/submissions/${contestName}/${graphName}`, {
+    method: "POST",
+    body: JSON.stringify(content),
+    headers: {
+      "Content-Type": "application/json",
+    },
+  });
   return response.json();
 }

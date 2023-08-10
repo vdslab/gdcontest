@@ -12,10 +12,10 @@ export default withApiAuthRequired(async function (req, res) {
     const { accessToken } = await getAccessToken(req, res, {});
     const { contestName, graphName } = req.query;
     const response = await fetch(
-      `${process.env.API_ORIGIN}/contests/${contestName}/graphs/${graphName}/submissions`,
+      `${process.env.NEXT_PUBLIC_API_ORIGIN}/contests/${contestName}/graphs/${graphName}/submissions`,
       {
         method: "POST",
-        body: req.body,
+        body: JSON.stringify(req.body),
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${accessToken}`,
