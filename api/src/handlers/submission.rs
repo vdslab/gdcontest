@@ -1,6 +1,6 @@
 use crate::{auth::Validator, error::Result, graph::*, repositories::*};
 use axum::{extract::Path, Extension, Json};
-use axum_auth::AuthBearer;
+use axum_auth::{AuthBasic, AuthBearer};
 use std::sync::Arc;
 
 pub async fn list<R>(
@@ -80,4 +80,21 @@ where
         .find_all_by_user_id(&contest_name, &graph_name, &user_id)
         .await
         .map(|records| Json(records))
+}
+
+pub async fn admin_get_content<R, V>(
+    Path(submission_id): Path<i32>,
+    Extension(submissions): Extension<Arc<R>>,
+    Extension(validator): Extension<Arc<V>>,
+    AuthBasic(auth): AuthBasic,
+) -> Result<Json<SubmissionData>>
+where
+    R: SubmissionRepository,
+    V: Validator,
+{
+    validator.validate_user(auth).await?;
+    submissions
+        .find_content(submission_id)
+        .await
+        .map(|record| Json(record))
 }

@@ -59,6 +59,12 @@ async fn main() {
         .route(
             "/users/:user_id",
             put(handlers::user::admin_put::<UserRepositoryForDB, ValidatorImpl>),
+        )
+        .route(
+            "/submissions/:submission_id/content",
+            get(
+                handlers::submission::admin_get_content::<SubmissionRepositoryForDB, ValidatorImpl>,
+            ),
         );
     let app = Router::new()
         .route("/contests", get(handlers::contest::list))

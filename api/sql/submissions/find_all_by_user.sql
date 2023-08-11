@@ -11,3 +11,4 @@ FROM submissions
 WHERE contest_name = $1
   AND graph_name = $2
   AND submissions.user_id = $3
+ORDER BY score

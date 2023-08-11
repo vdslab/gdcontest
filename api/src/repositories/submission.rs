@@ -50,6 +50,7 @@ pub struct CreateSubmission {
 #[async_trait]
 pub trait SubmissionRepository: Clone + Send + Sync + 'static {
     async fn find(&self, submission_id: i32) -> Result<Submission>;
+    async fn find_content(&self, submission_id: i32) -> Result<SubmissionData>;
     async fn find_all(&self, constest_name: &str, graph_name: &str) -> Result<Vec<Submission>>;
     async fn find_standings(
         &self,
@@ -87,6 +88,22 @@ impl SubmissionRepository for SubmissionRepositoryForDB {
                 sqlx::Error::RowNotFound => ApiError::NotFound("record not found".into()),
                 _ => ApiError::Unknown("error".into()),
             })
+    }
+
+    async fn find_content(&self, submission_id: i32) -> Result<SubmissionData> {
+        let mut conn = super::connection(&self.pool).await?;
+        sqlx::query_file_as!(
+            SubmissionContent,
+            "sql/submissions/find_content.sql",
+            submission_id
+        )
+        .fetch_one(&mut conn)
+        .await
+        .map(|record| record.content.0)
+        .map_err(|e| match e {
+            sqlx::Error::RowNotFound => ApiError::NotFound("record not found".into()),
+            _ => ApiError::Unknown("error".into()),
+        })
     }
 
     async fn find_all(&self, contest_name: &str, graph_name: &str) -> Result<Vec<Submission>> {
@@ -161,6 +178,10 @@ struct SubmissionRepositoryForMemory;
 #[async_trait]
 impl SubmissionRepository for SubmissionRepositoryForMemory {
     async fn find(&self, _submission_id: i32) -> Result<Submission> {
+        unimplemented!("unimplemented!")
+    }
+
+    async fn find_content(&self, _submission_id: i32) -> Result<SubmissionData> {
         unimplemented!("unimplemented!")
     }
 
