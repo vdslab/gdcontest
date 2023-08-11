@@ -10,6 +10,7 @@ import { useUser } from "@auth0/nextjs-auth0/client";
 import Link from "next/link";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "next/router";
+import { calculatePoint } from "@/standings";
 
 export async function getStaticProps({ params }) {
   const { contestName, graphName } = params;
@@ -65,6 +66,7 @@ export default function GraphDetailPage({
   const graphContentBlob = new Blob([JSON.stringify(graphContent)], {
     type: "application/json",
   });
+  const points = calculatePoint(submissions);
   return (
     <>
       <div className="block">
@@ -191,9 +193,10 @@ export default function GraphDetailPage({
           <table className="table is-bordered is-fullwidth">
             <thead>
               <tr>
-                <th>Position</th>
-                <th>User</th>
-                <th>Score</th>
+                <th style={{ width: "25%" }}>Position</th>
+                <th style={{ width: "25%" }}>User</th>
+                <th style={{ width: "25%" }}>Score</th>
+                <th style={{ width: "25%" }}>Point</th>
               </tr>
             </thead>
             <tbody>
@@ -214,6 +217,7 @@ export default function GraphDetailPage({
                         submission.user_id}
                     </td>
                     <td>{submission.score}</td>
+                    <td>{points[i]}</td>
                   </tr>
                 );
               })}
