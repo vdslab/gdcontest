@@ -220,7 +220,11 @@ export default function GraphDetailPage({
                   >
                     <td className="has-text-left">{i + 1}</td>
                     <td className="has-text-left">
-                      {submission.user_name || submission.user_id}
+                      <Link
+                        href={`/contests/${graph.contest_name}/${graph.graph_name}/${submission.user_id}`}
+                      >
+                        {submission.user_name || submission.user_id}
+                      </Link>
                     </td>
                     <td className="has-text-right">
                       {submission.score.toFixed(3)}
