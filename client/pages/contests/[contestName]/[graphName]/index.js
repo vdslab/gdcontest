@@ -193,16 +193,19 @@ export default function GraphDetailPage({
           <table className="table is-bordered is-fullwidth">
             <thead>
               <tr>
-                <th className="has-text-centered" style={{ width: "25%" }}>
+                <th className="has-text-centered" style={{ width: "20%" }}>
                   Position
                 </th>
-                <th className="has-text-centered" style={{ width: "25%" }}>
+                <th className="has-text-centered" style={{ width: "20%" }}>
                   User
                 </th>
-                <th className="has-text-centered" style={{ width: "25%" }}>
+                <th className="has-text-centered" style={{ width: "20%" }}>
+                  Submission Date
+                </th>
+                <th className="has-text-centered" style={{ width: "20%" }}>
                   Score
                 </th>
-                <th className="has-text-centered" style={{ width: "25%" }}>
+                <th className="has-text-centered" style={{ width: "20%" }}>
                   Point
                 </th>
               </tr>
@@ -221,9 +224,20 @@ export default function GraphDetailPage({
                     <td className="has-text-left">{i + 1}</td>
                     <td className="has-text-left">
                       <Link
-                        href={`/contests/${graph.contest_name}/${graph.graph_name}/${submission.user_id}`}
+                        href={`/contests/${graph.contest_name}/${
+                          graph.graph_name
+                        }/${encodeURI(submission.user_id)}`}
                       >
                         {submission.user_name || submission.user_id}
+                      </Link>
+                    </td>
+                    <td className="has-text-left">
+                      <Link
+                        href={`/contests/${graph.contest_name}/${
+                          graph.graph_name
+                        }/${encodeURI(submission.user_id)}/${submission.id}`}
+                      >
+                        {submission.created_at}
                       </Link>
                     </td>
                     <td className="has-text-right">

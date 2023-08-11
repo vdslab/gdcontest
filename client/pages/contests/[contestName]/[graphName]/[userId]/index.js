@@ -57,7 +57,7 @@ export default function UserSubmissionListPage({ submissions, userName }) {
             <thead>
               <tr>
                 <th className="has-text-centered" style={{ width: "50%" }}>
-                  Submission ID
+                  Submission Date
                 </th>
                 <th className="has-text-centered" style={{ width: "50%" }}>
                   Score
@@ -70,9 +70,11 @@ export default function UserSubmissionListPage({ submissions, userName }) {
                   <tr key={submission.id}>
                     <td className="has-text-left">
                       <Link
-                        href={`/contests/${router.query.contestName}/${router.query.graphName}/${router.query.userId}/${submission.id}`}
+                        href={`/contests/${router.query.contestName}/${
+                          router.query.graphName
+                        }/${encodeURI(router.query.userId)}/${submission.id}`}
                       >
-                        {submission.id}
+                        {submission.created_at}
                       </Link>
                     </td>
                     <td className="has-text-right">

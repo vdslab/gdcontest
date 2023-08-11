@@ -6,10 +6,10 @@ export function calculatePoint(standings) {
       ? (standings[m - 1].score + standings[m].score) / 2
       : standings[m].score;
   return standings.map(({ score }, i) => {
-    if (i == 0) {
+    if (score === standings[0].score) {
       return 5;
     }
-    if (i == n - 1) {
+    if (score === standings[n - 1].score) {
       return 1;
     }
     return score <= median ? 3 : 2;

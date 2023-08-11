@@ -1,35 +1,52 @@
+import { fetchSubmission } from "@/api";
 import Image from "next/image";
 import Link from "next/link";
-import { useRouter } from "next/router";
 
-export default function UserSubmissionDetailPage() {
-  const router = useRouter();
+export async function getStaticProps({ params }) {
+  const { submissionId } = params;
+  const submission = await fetchSubmission(submissionId);
+  return {
+    props: {
+      submission,
+    },
+    revalidate: 60,
+  };
+}
+
+export async function getStaticPaths() {
+  return {
+    paths: [],
+    fallback: "blocking",
+  };
+}
+
+export default function UserSubmissionDetailPage({ submission }) {
   return (
     <>
       <div className="block">
         <nav className="breadcrumb" aria-label="breadcrumbs">
           <ul>
             <li>
-              <Link href={`/contests/${router.query.contestName}`}>
-                {router.query.contestName}
+              <Link href={`/contests/${submission.contest_name}`}>
+                {submission.contest_name}
               </Link>
             </li>
             <li>
               <Link
-                href={`/contests/${router.query.contestName}/${router.query.graphName}`}
+                href={`/contests/${submission.contest_name}/${submission.graph_name}`}
               >
-                {router.query.graphName}
+                {submission.graph_name}
               </Link>
             </li>
             <li>
               <Link
-                href={`/contests/${router.query.contestName}/${router.query.graphName}/${router.query.userId}`}
+                href={`/contests/${submission.contest_name}/${submission.graph_name}/${submission.user_id}`}
               >
-                {router.query.userId}
+                {submission.user_name || submission.user_id}
               </Link>
             </li>
             <li className="is-active">
-              <a>{router.query.submissionId}</a>
+              <a>{submission.id}</a>
             </li>
           </ul>
         </nav>
@@ -37,14 +54,12 @@ export default function UserSubmissionDetailPage() {
       <div className="block">
         <h3 className="title">Drawing Result</h3>
         <figure className="image is-square">
-          {router.query.submissionId && (
-            <Image
-              src={`/api/images/${router.query.submissionId}`}
-              alt={`Drawing result of submission ${router.query.submissionId}`}
-              width="1248"
-              height="1248"
-            />
-          )}
+          <Image
+            src={`/api/images/${submission.id}`}
+            alt={`Drawing result of submission ${submission.id}`}
+            width="1248"
+            height="1248"
+          />
         </figure>
       </div>
     </>

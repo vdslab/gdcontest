@@ -16,16 +16,8 @@ pub struct Submission {
     pub user_name: Option<String>,
     pub user_nickname: Option<String>,
     pub score: Option<f64>,
-}
-
-#[derive(Serialize)]
-pub struct StandingsSubmission {
-    pub contest_name: String,
-    pub graph_name: String,
-    pub user_id: String,
-    pub user_name: Option<String>,
-    pub user_nickname: Option<String>,
-    pub score: Option<f64>,
+    pub created_at: sqlx::types::chrono::NaiveDateTime,
+    pub updated_at: sqlx::types::chrono::NaiveDateTime,
 }
 
 #[derive(Serialize)]
@@ -52,11 +44,8 @@ pub trait SubmissionRepository: Clone + Send + Sync + 'static {
     async fn find(&self, submission_id: i32) -> Result<Submission>;
     async fn find_content(&self, submission_id: i32) -> Result<SubmissionData>;
     async fn find_all(&self, constest_name: &str, graph_name: &str) -> Result<Vec<Submission>>;
-    async fn find_standings(
-        &self,
-        contest_name: &str,
-        graph_name: &str,
-    ) -> Result<Vec<StandingsSubmission>>;
+    async fn find_standings(&self, contest_name: &str, graph_name: &str)
+        -> Result<Vec<Submission>>;
     async fn find_all_by_user_id(
         &self,
         contest_name: &str,
@@ -123,10 +112,10 @@ impl SubmissionRepository for SubmissionRepositoryForDB {
         &self,
         contest_name: &str,
         graph_name: &str,
-    ) -> Result<Vec<StandingsSubmission>> {
+    ) -> Result<Vec<Submission>> {
         let mut conn = super::connection(&self.pool).await?;
         sqlx::query_file_as!(
-            StandingsSubmission,
+            Submission,
             "sql/submissions/find_standings.sql",
             contest_name,
             graph_name,
@@ -193,7 +182,7 @@ impl SubmissionRepository for SubmissionRepositoryForMemory {
         &self,
         _contest_name: &str,
         _graph_name: &str,
-    ) -> Result<Vec<StandingsSubmission>> {
+    ) -> Result<Vec<Submission>> {
         unimplemented!("unimplemented!")
     }
 

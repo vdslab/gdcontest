@@ -38,63 +38,6 @@
     },
     "query": "SELECT \n  contest_name,\n  graph_name,\n  created_at,\n  updated_at\nFROM graphs\nWHERE contest_name = $1\n"
   },
-  "08ab24205da7838f780d7a7a16b1d840fe17eee0d11384a03c035be7c6839992": {
-    "describe": {
-      "columns": [
-        {
-          "name": "id",
-          "ordinal": 0,
-          "type_info": "Int4"
-        },
-        {
-          "name": "contest_name",
-          "ordinal": 1,
-          "type_info": "Text"
-        },
-        {
-          "name": "graph_name",
-          "ordinal": 2,
-          "type_info": "Text"
-        },
-        {
-          "name": "user_id",
-          "ordinal": 3,
-          "type_info": "Text"
-        },
-        {
-          "name": "user_name!:Option<String>",
-          "ordinal": 4,
-          "type_info": "Text"
-        },
-        {
-          "name": "user_nickname!:Option<String>",
-          "ordinal": 5,
-          "type_info": "Text"
-        },
-        {
-          "name": "score",
-          "ordinal": 6,
-          "type_info": "Float8"
-        }
-      ],
-      "nullable": [
-        false,
-        false,
-        false,
-        false,
-        true,
-        true,
-        null
-      ],
-      "parameters": {
-        "Left": [
-          "Text",
-          "Text"
-        ]
-      }
-    },
-    "query": "SELECT \n  id,\n  contest_name,\n  graph_name,\n  submissions.user_id,\n  users.name AS \"user_name!:Option<String>\",\n  users.nickname AS \"user_nickname!:Option<String>\",\n  (metrics->>'stress')::FLOAT AS score\nFROM submissions\n  LEFT JOIN users ON submissions.user_id = users.user_id\nWHERE contest_name = $1\n  AND graph_name = $2\n"
-  },
   "095cca3695140bac73684e0843dbf45dd054f0f7cd6cef84290128850d38c034": {
     "describe": {
       "columns": [
@@ -189,6 +132,75 @@
     },
     "query": "SELECT\n  content AS \"content!:sqlx::types::Json<SubmissionData>\"\nFROM submissions\nWHERE id = $1\n"
   },
+  "50e46b096d72981cf03a510432dfe2844a1535d8657bf6d56c8efbd342fe926b": {
+    "describe": {
+      "columns": [
+        {
+          "name": "id",
+          "ordinal": 0,
+          "type_info": "Int4"
+        },
+        {
+          "name": "contest_name",
+          "ordinal": 1,
+          "type_info": "Text"
+        },
+        {
+          "name": "graph_name",
+          "ordinal": 2,
+          "type_info": "Text"
+        },
+        {
+          "name": "user_id",
+          "ordinal": 3,
+          "type_info": "Text"
+        },
+        {
+          "name": "user_name!:Option<String>",
+          "ordinal": 4,
+          "type_info": "Text"
+        },
+        {
+          "name": "user_nickname!:Option<String>",
+          "ordinal": 5,
+          "type_info": "Text"
+        },
+        {
+          "name": "score",
+          "ordinal": 6,
+          "type_info": "Float8"
+        },
+        {
+          "name": "created_at",
+          "ordinal": 7,
+          "type_info": "Timestamp"
+        },
+        {
+          "name": "updated_at",
+          "ordinal": 8,
+          "type_info": "Timestamp"
+        }
+      ],
+      "nullable": [
+        false,
+        false,
+        false,
+        false,
+        true,
+        true,
+        null,
+        false,
+        false
+      ],
+      "parameters": {
+        "Left": [
+          "Text",
+          "Text"
+        ]
+      }
+    },
+    "query": "SELECT\n  id,\n  contest_name,\n  graph_name,\n  submissions.user_id,\n  users.name AS \"user_name!:Option<String>\",\n  users.nickname AS \"user_nickname!:Option<String>\",\n  (metrics->>'stress')::FLOAT AS score,\n  submissions.created_at,\n  submissions.updated_at\nFROM submissions\n  LEFT JOIN users ON submissions.user_id = users.user_id\nWHERE\n  contest_name = $1\n  AND graph_name = $2\n  AND 0 = (\n    SELECT count(*)\n    FROM submissions AS sub\n    WHERE sub.contest_name = submissions.contest_name\n      AND sub.graph_name = submissions.graph_name\n      AND sub.user_id = submissions.user_id\n      AND sub.metrics->>'stress' IS NOT NULL\n      AND (\n        (sub.metrics->>'stress')::FLOAT < (submissions.metrics->>'stress')::FLOAT\n        OR (\n          (sub.metrics->>'stress')::FLOAT = (submissions.metrics->>'stress')::FLOAT\n          AND sub.created_at < submissions.created_at\n        )\n      )\n  )\nORDER BY score, created_at\n"
+  },
   "5ef4b732bad899b10bcd4e83419efea0a2731ae6052a3671975bb81c3c731442": {
     "describe": {
       "columns": [
@@ -242,6 +254,74 @@
     },
     "query": "INSERT INTO users (user_id, name, nickname, email)\n  VALUES ($1, $2, $3, $4)\nON CONFLICT (user_id)\nDO UPDATE SET name=$2, nickname=$3, email=$4, updated_at=CURRENT_TIMESTAMP\nRETURNING\n  user_id,\n  name,\n  nickname,\n  email,\n  created_at,\n  updated_at\n"
   },
+  "70930570ae5d0bcccf71f50f7463c8ae2102a0cc9e4b6013cccb96fba9e9475c": {
+    "describe": {
+      "columns": [
+        {
+          "name": "id",
+          "ordinal": 0,
+          "type_info": "Int4"
+        },
+        {
+          "name": "contest_name",
+          "ordinal": 1,
+          "type_info": "Text"
+        },
+        {
+          "name": "graph_name",
+          "ordinal": 2,
+          "type_info": "Text"
+        },
+        {
+          "name": "user_id",
+          "ordinal": 3,
+          "type_info": "Text"
+        },
+        {
+          "name": "user_name!:Option<String>",
+          "ordinal": 4,
+          "type_info": "Text"
+        },
+        {
+          "name": "user_nickname!:Option<String>",
+          "ordinal": 5,
+          "type_info": "Text"
+        },
+        {
+          "name": "score",
+          "ordinal": 6,
+          "type_info": "Float8"
+        },
+        {
+          "name": "created_at",
+          "ordinal": 7,
+          "type_info": "Timestamp"
+        },
+        {
+          "name": "updated_at",
+          "ordinal": 8,
+          "type_info": "Timestamp"
+        }
+      ],
+      "nullable": [
+        false,
+        false,
+        false,
+        false,
+        true,
+        true,
+        null,
+        false,
+        false
+      ],
+      "parameters": {
+        "Left": [
+          "Int4"
+        ]
+      }
+    },
+    "query": "SELECT\n  id,\n  contest_name,\n  graph_name,\n  submissions.user_id,\n  users.name AS \"user_name!:Option<String>\",\n  users.nickname AS \"user_nickname!:Option<String>\",\n  (metrics->>'stress')::FLOAT AS score,\n  submissions.created_at,\n  submissions.updated_at\nFROM submissions\n  JOIN users ON submissions.user_id = users.user_id\nWHERE id = $1\n"
+  },
   "8440d4434de8a9b6d2c73147ee830feae6e4655506c4cbd7571d090a5eea2abb": {
     "describe": {
       "columns": [
@@ -290,58 +370,7 @@
     },
     "query": "SELECT\n  contest_name,\n  published,\n  start_at,\n  end_at,\n  created_at,\n  updated_at\nFROM contests\n"
   },
-  "8da9595ffcb666667a855020eb6e88b8cf49ae5757d7014af8adb1a9799e9cb6": {
-    "describe": {
-      "columns": [
-        {
-          "name": "contest_name",
-          "ordinal": 0,
-          "type_info": "Text"
-        },
-        {
-          "name": "graph_name",
-          "ordinal": 1,
-          "type_info": "Text"
-        },
-        {
-          "name": "user_id",
-          "ordinal": 2,
-          "type_info": "Text"
-        },
-        {
-          "name": "user_name!:Option<String>",
-          "ordinal": 3,
-          "type_info": "Text"
-        },
-        {
-          "name": "user_nickname!:Option<String>",
-          "ordinal": 4,
-          "type_info": "Text"
-        },
-        {
-          "name": "score",
-          "ordinal": 5,
-          "type_info": "Float8"
-        }
-      ],
-      "nullable": [
-        false,
-        false,
-        false,
-        true,
-        true,
-        null
-      ],
-      "parameters": {
-        "Left": [
-          "Text",
-          "Text"
-        ]
-      }
-    },
-    "query": "WITH best_submissions AS (\n  SELECT \n    contest_name,\n    graph_name,\n    user_id,\n    MIN((metrics->>'stress')::FLOAT) AS score\n  FROM submissions\n  WHERE contest_name = $1\n    AND graph_name = $2\n    AND metrics->>'stress' IS NOT NULL\n  GROUP BY contest_name, graph_name, submissions.user_id\n)\nSELECT \n  contest_name,\n  graph_name,\n  best_submissions.user_id,\n  users.name AS \"user_name!:Option<String>\",\n  users.nickname AS \"user_nickname!:Option<String>\",\n  score\nFROM best_submissions\n  LEFT JOIN users ON best_submissions.user_id = users.user_id\nORDER BY score ASC\n"
-  },
-  "aa76d629a7b9ed255fffdcbf93f193358927d540da58483cb129d944c0f93ee7": {
+  "add72e841b203300b51f7ad98ab641d81a4385017050eee179f94addd5192ec3": {
     "describe": {
       "columns": [
         {
@@ -378,6 +407,16 @@
           "name": "score",
           "ordinal": 6,
           "type_info": "Float8"
+        },
+        {
+          "name": "created_at",
+          "ordinal": 7,
+          "type_info": "Timestamp"
+        },
+        {
+          "name": "updated_at",
+          "ordinal": 8,
+          "type_info": "Timestamp"
         }
       ],
       "nullable": [
@@ -387,15 +426,19 @@
         false,
         true,
         true,
-        null
+        null,
+        false,
+        false
       ],
       "parameters": {
         "Left": [
-          "Int4"
+          "Text",
+          "Text",
+          "Text"
         ]
       }
     },
-    "query": "SELECT\n  id,\n  contest_name,\n  graph_name,\n  submissions.user_id,\n  users.name AS \"user_name!:Option<String>\",\n  users.nickname AS \"user_nickname!:Option<String>\",\n  (metrics->>'stress')::FLOAT AS score\nFROM submissions\n  JOIN users ON submissions.user_id = users.user_id\nWHERE id = $1\n"
+    "query": "SELECT \n  id,\n  contest_name,\n  graph_name,\n  submissions.user_id,\n  users.name AS \"user_name!:Option<String>\",\n  users.nickname AS \"user_nickname!:Option<String>\",\n  (metrics->>'stress')::FLOAT AS score,\n  submissions.created_at,\n  submissions.updated_at\nFROM submissions\n  LEFT JOIN users ON submissions.user_id = users.user_id\nWHERE contest_name = $1\n  AND graph_name = $2\n  AND submissions.user_id = $3\nORDER BY score, created_at\n"
   },
   "ae4593e4733ade1c308e85369bd17d5fa4d24d85c2513bf75702bf285a691859": {
     "describe": {
@@ -448,6 +491,75 @@
       }
     },
     "query": "SELECT \n  contest_name,\n  graph_name,\n  created_at,\n  updated_at\nFROM graphs\nWHERE contest_name = $1\n  AND graph_name = $2\n"
+  },
+  "c5bb78448c7db2407a08f6fb5ad37907fd31586f20ad3f78dae21bb576085799": {
+    "describe": {
+      "columns": [
+        {
+          "name": "id",
+          "ordinal": 0,
+          "type_info": "Int4"
+        },
+        {
+          "name": "contest_name",
+          "ordinal": 1,
+          "type_info": "Text"
+        },
+        {
+          "name": "graph_name",
+          "ordinal": 2,
+          "type_info": "Text"
+        },
+        {
+          "name": "user_id",
+          "ordinal": 3,
+          "type_info": "Text"
+        },
+        {
+          "name": "user_name!:Option<String>",
+          "ordinal": 4,
+          "type_info": "Text"
+        },
+        {
+          "name": "user_nickname!:Option<String>",
+          "ordinal": 5,
+          "type_info": "Text"
+        },
+        {
+          "name": "score",
+          "ordinal": 6,
+          "type_info": "Float8"
+        },
+        {
+          "name": "created_at",
+          "ordinal": 7,
+          "type_info": "Timestamp"
+        },
+        {
+          "name": "updated_at",
+          "ordinal": 8,
+          "type_info": "Timestamp"
+        }
+      ],
+      "nullable": [
+        false,
+        false,
+        false,
+        false,
+        true,
+        true,
+        null,
+        false,
+        false
+      ],
+      "parameters": {
+        "Left": [
+          "Text",
+          "Text"
+        ]
+      }
+    },
+    "query": "SELECT \n  id,\n  contest_name,\n  graph_name,\n  submissions.user_id,\n  users.name AS \"user_name!:Option<String>\",\n  users.nickname AS \"user_nickname!:Option<String>\",\n  (metrics->>'stress')::FLOAT AS score,\n  submissions.created_at,\n  submissions.updated_at\nFROM submissions\n  LEFT JOIN users ON submissions.user_id = users.user_id\nWHERE contest_name = $1\n  AND graph_name = $2\nORDER BY score, created_at\n"
   },
   "c9b414bcb74d5ecc94c2b3d9b46de5ae08b5eca10f59115fb67e087895e35cf6": {
     "describe": {
@@ -650,63 +762,5 @@
       }
     },
     "query": "SELECT\n  contest_name,\n  published,\n  start_at,\n  end_at,\n  created_at,\n  updated_at\nFROM contests\nWHERE contest_name = $1\n"
-  },
-  "f8d95980827bd3d3dd3c6deb2fe8cb1bca623becad1bedffd83f97d728ec3ef6": {
-    "describe": {
-      "columns": [
-        {
-          "name": "id",
-          "ordinal": 0,
-          "type_info": "Int4"
-        },
-        {
-          "name": "contest_name",
-          "ordinal": 1,
-          "type_info": "Text"
-        },
-        {
-          "name": "graph_name",
-          "ordinal": 2,
-          "type_info": "Text"
-        },
-        {
-          "name": "user_id",
-          "ordinal": 3,
-          "type_info": "Text"
-        },
-        {
-          "name": "user_name!:Option<String>",
-          "ordinal": 4,
-          "type_info": "Text"
-        },
-        {
-          "name": "user_nickname!:Option<String>",
-          "ordinal": 5,
-          "type_info": "Text"
-        },
-        {
-          "name": "score",
-          "ordinal": 6,
-          "type_info": "Float8"
-        }
-      ],
-      "nullable": [
-        false,
-        false,
-        false,
-        false,
-        true,
-        true,
-        null
-      ],
-      "parameters": {
-        "Left": [
-          "Text",
-          "Text",
-          "Text"
-        ]
-      }
-    },
-    "query": "SELECT \n  id,\n  contest_name,\n  graph_name,\n  submissions.user_id,\n  users.name AS \"user_name!:Option<String>\",\n  users.nickname AS \"user_nickname!:Option<String>\",\n  (metrics->>'stress')::FLOAT AS score\nFROM submissions\n  LEFT JOIN users ON submissions.user_id = users.user_id\nWHERE contest_name = $1\n  AND graph_name = $2\n  AND submissions.user_id = $3\nORDER BY score\n"
   }
 }

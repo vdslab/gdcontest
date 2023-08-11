@@ -19,7 +19,7 @@ where
 pub async fn list_standings<R>(
     Path((contest_name, graph_name)): Path<(String, String)>,
     Extension(submissions): Extension<Arc<R>>,
-) -> Result<Json<Vec<StandingsSubmission>>>
+) -> Result<Json<Vec<Submission>>>
 where
     R: SubmissionRepository,
 {
