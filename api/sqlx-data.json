@@ -139,64 +139,6 @@
     },
     "query": "DELETE FROM contests\nWHERE contest_name = $1\n"
   },
-  "1fbd811cbda6206e79b2ae12d041ad9893d1697aa740e3f53540bede338714c8": {
-    "describe": {
-      "columns": [
-        {
-          "name": "id",
-          "ordinal": 0,
-          "type_info": "Int4"
-        },
-        {
-          "name": "contest_name",
-          "ordinal": 1,
-          "type_info": "Text"
-        },
-        {
-          "name": "graph_name",
-          "ordinal": 2,
-          "type_info": "Text"
-        },
-        {
-          "name": "user_id",
-          "ordinal": 3,
-          "type_info": "Text"
-        },
-        {
-          "name": "user_name!:Option<String>",
-          "ordinal": 4,
-          "type_info": "Text"
-        },
-        {
-          "name": "user_nickname!:Option<String>",
-          "ordinal": 5,
-          "type_info": "Text"
-        },
-        {
-          "name": "score",
-          "ordinal": 6,
-          "type_info": "Float8"
-        }
-      ],
-      "nullable": [
-        false,
-        false,
-        false,
-        false,
-        true,
-        true,
-        null
-      ],
-      "parameters": {
-        "Left": [
-          "Text",
-          "Text",
-          "Text"
-        ]
-      }
-    },
-    "query": "SELECT \n  id,\n  contest_name,\n  graph_name,\n  submissions.user_id,\n  users.name AS \"user_name!:Option<String>\",\n  users.nickname AS \"user_nickname!:Option<String>\",\n  (metrics->>'stress')::FLOAT AS score\nFROM submissions\n  LEFT JOIN users ON submissions.user_id = users.user_id\nWHERE contest_name = $1\n  AND graph_name = $2\n  AND submissions.user_id = $3\n"
-  },
   "244913127929965f1595f787e1a486347cbe44554fab2a71ae48f351ab743b68": {
     "describe": {
       "columns": [
@@ -226,6 +168,26 @@
       }
     },
     "query": "SELECT\n  contest_name,\n  start_at,\n  end_at\nFROM contests\nWHERE published = TRUE\n"
+  },
+  "4e12157cc7d201e775ef09c86af474119cded2328b21cf7737ef2209bfc4e7f4": {
+    "describe": {
+      "columns": [
+        {
+          "name": "content!:sqlx::types::Json<SubmissionData>",
+          "ordinal": 0,
+          "type_info": "Json"
+        }
+      ],
+      "nullable": [
+        false
+      ],
+      "parameters": {
+        "Left": [
+          "Int4"
+        ]
+      }
+    },
+    "query": "SELECT\n  content AS \"content!:sqlx::types::Json<SubmissionData>\"\nFROM submissions\nWHERE id = $1\n"
   },
   "5ef4b732bad899b10bcd4e83419efea0a2731ae6052a3671975bb81c3c731442": {
     "describe": {
@@ -688,5 +650,63 @@
       }
     },
     "query": "SELECT\n  contest_name,\n  published,\n  start_at,\n  end_at,\n  created_at,\n  updated_at\nFROM contests\nWHERE contest_name = $1\n"
+  },
+  "f8d95980827bd3d3dd3c6deb2fe8cb1bca623becad1bedffd83f97d728ec3ef6": {
+    "describe": {
+      "columns": [
+        {
+          "name": "id",
+          "ordinal": 0,
+          "type_info": "Int4"
+        },
+        {
+          "name": "contest_name",
+          "ordinal": 1,
+          "type_info": "Text"
+        },
+        {
+          "name": "graph_name",
+          "ordinal": 2,
+          "type_info": "Text"
+        },
+        {
+          "name": "user_id",
+          "ordinal": 3,
+          "type_info": "Text"
+        },
+        {
+          "name": "user_name!:Option<String>",
+          "ordinal": 4,
+          "type_info": "Text"
+        },
+        {
+          "name": "user_nickname!:Option<String>",
+          "ordinal": 5,
+          "type_info": "Text"
+        },
+        {
+          "name": "score",
+          "ordinal": 6,
+          "type_info": "Float8"
+        }
+      ],
+      "nullable": [
+        false,
+        false,
+        false,
+        false,
+        true,
+        true,
+        null
+      ],
+      "parameters": {
+        "Left": [
+          "Text",
+          "Text",
+          "Text"
+        ]
+      }
+    },
+    "query": "SELECT \n  id,\n  contest_name,\n  graph_name,\n  submissions.user_id,\n  users.name AS \"user_name!:Option<String>\",\n  users.nickname AS \"user_nickname!:Option<String>\",\n  (metrics->>'stress')::FLOAT AS score\nFROM submissions\n  LEFT JOIN users ON submissions.user_id = users.user_id\nWHERE contest_name = $1\n  AND graph_name = $2\n  AND submissions.user_id = $3\nORDER BY score\n"
   }
 }
