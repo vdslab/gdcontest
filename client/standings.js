@@ -12,6 +12,6 @@ export function calculatePoint(standings) {
     if (i == n - 1) {
       return 1;
     }
-    return score >= median ? 3 : 2;
+    return score <= median ? 3 : 2;
   });
 }

@@ -193,10 +193,18 @@ export default function GraphDetailPage({
           <table className="table is-bordered is-fullwidth">
             <thead>
               <tr>
-                <th style={{ width: "25%" }}>Position</th>
-                <th style={{ width: "25%" }}>User</th>
-                <th style={{ width: "25%" }}>Score</th>
-                <th style={{ width: "25%" }}>Point</th>
+                <th className="has-text-centered" style={{ width: "25%" }}>
+                  Position
+                </th>
+                <th className="has-text-centered" style={{ width: "25%" }}>
+                  User
+                </th>
+                <th className="has-text-centered" style={{ width: "25%" }}>
+                  Score
+                </th>
+                <th className="has-text-centered" style={{ width: "25%" }}>
+                  Point
+                </th>
               </tr>
             </thead>
             <tbody>
@@ -210,14 +218,14 @@ export default function GraphDetailPage({
                         : ""
                     }
                   >
-                    <td>{i + 1}</td>
-                    <td>
-                      {submission.user_nickname ||
-                        submission.user_name ||
-                        submission.user_id}
+                    <td className="has-text-left">{i + 1}</td>
+                    <td className="has-text-left">
+                      {submission.user_name || submission.user_id}
                     </td>
-                    <td>{submission.score}</td>
-                    <td>{points[i]}</td>
+                    <td className="has-text-right">
+                      {submission.score.toFixed(3)}
+                    </td>
+                    <td className="has-text-right">{points[i]}</td>
                   </tr>
                 );
               })}
